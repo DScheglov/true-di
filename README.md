@@ -32,5 +32,3 @@ const container = diContainer<IContainer>({
 
 export default container;
 ```
-
-or

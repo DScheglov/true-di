@@ -4,7 +4,7 @@
   "description": "Simple Dependency Injection solution for TypeScript and Javascript",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage && ./.coveralls.sh",
     "build:es": "rm -rf ./es; tsc -p ./tsconfig.esm.json",
     "build:cjs": "rm -rf ./lib; tsc -p ./tsconfig.cjs.json",
     "build": "npm run build:es && npm run build:cjs"
@@ -34,6 +34,7 @@
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
+    "coveralls": "^3.1.0",
     "eslint": "^6.7.2",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-plugin-import": "^2.21.2",
