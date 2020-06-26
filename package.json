@@ -1,13 +1,14 @@
 {
   "name": "true-di",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Simple Dependency Injection solution for TypeScript and Javascript",
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage && ./.coveralls.sh",
     "build:es": "rm -rf ./es; tsc -p ./tsconfig.esm.json",
     "build:cjs": "rm -rf ./lib; tsc -p ./tsconfig.cjs.json",
-    "build": "npm run build:es && npm run build:cjs"
+    "build": "npm run build:es && npm run build:cjs",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
