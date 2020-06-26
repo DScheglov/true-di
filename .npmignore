@@ -2,4 +2,6 @@
 !/lib
 !/es
 !/src
+!index.js
+!modern.js
 /src/**/*.test.ts
