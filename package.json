@@ -1,6 +1,6 @@
 {
   "name": "true-di",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple Dependency Injection solution for TypeScript and Javascript",
   "main": "index.js",
   "scripts": {

@@ -3,5 +3,7 @@
 !/es
 !/src
 !index.js
+!index.d.ts
 !modern.js
+!modern.d.ts
 /src/**/*.test.ts
