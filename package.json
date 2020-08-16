@@ -1,14 +1,17 @@
 {
   "name": "true-di",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Simple Dependency Injection solution for TypeScript and Javascript",
-  "main": "index.js",
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "sideEffects": false,
   "scripts": {
-    "test": "jest --coverage && ./.coveralls.sh",
-    "build:es": "rm -rf ./es; tsc -p ./tsconfig.esm.json",
-    "build:cjs": "rm -rf ./lib; tsc -p ./tsconfig.cjs.json",
-    "build": "npm run build:es && npm run build:cjs",
-    "prepublish": "npm run build"
+    "test": "jest",
+    "coveralls": "./.coveralls.sh",
+    "lint": "eslint ./src/**/*.ts",
+    "clear": "rm -rf ./lib; rm -rf ./esm",
+    "compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json",
+    "build": "npm run clear; npm run compile"
   },
   "repository": {
     "type": "git",
@@ -43,5 +46,72 @@
     "jest": "^25.1.0",
     "ts-jest": "^25.0.0",
     "typescript": "^3.7.5"
+  },
+  "eslintConfig": {
+    "extends": [
+      "airbnb/base"
+    ],
+    "plugins": [
+      "@typescript-eslint",
+      "jest"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "rules": {
+      "max-len": [
+        "error",
+        {
+          "code": 100,
+          "ignoreStrings": true
+        }
+      ],
+      "implicit-arrow-linebreak": "off",
+      "import/no-unresolved": 0,
+      "import/prefer-default-export": 0,
+      "indent": [
+        2,
+        2,
+        {
+          "flatTernaryExpressions": true
+        }
+      ],
+      "no-unused-vars": "off",
+      "no-undef": "error",
+      "no-tabs": "error",
+      "no-nested-ternary": 0,
+      "import/extensions": 0,
+      "arrow-parens": [
+        "error",
+        "as-needed"
+      ],
+      "operator-linebreak": 0,
+      "no-underscore-dangle": 0,
+      "@typescript-eslint/no-unused-vars": [
+        "error"
+      ],
+      "jest/no-disabled-tests": "warn",
+      "jest/no-focused-tests": "error",
+      "jest/no-identical-title": "error",
+      "jest/prefer-to-have-length": "warn",
+      "jest/valid-expect": "error"
+    },
+    "env": {
+      "jest/globals": true
+    },
+    "ignorePatterns": [
+      "examples/**/*",
+      "lib/**/*",
+      "esm/**/*"
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "/lib/', '/es/"
+    ]
   }
 }

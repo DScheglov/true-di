@@ -16,7 +16,7 @@ node_modules
 
 # Build artifacts
 lib/
-es/
+esm/
 
 # IDE settings
 .vscode
