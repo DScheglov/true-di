@@ -1,4 +1,4 @@
-import diContainer from './lib/getters-container';
+import diContainer from './lib/index';
 
-export * from './lib/getters-container';
+export * from './lib/index';
 export default diContainer;

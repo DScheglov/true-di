@@ -1,1 +1,1 @@
-module.exports = require('./lib/getters-container');
+module.exports = require('./lib/index');

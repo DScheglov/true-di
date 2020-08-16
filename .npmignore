@@ -1,9 +1,10 @@
  /*
+
 !/lib
-!/es
+!/esm
 !/src
+!/utils
 !index.js
 !index.d.ts
-!modern.js
-!modern.d.ts
+
 /src/**/*.test.ts
