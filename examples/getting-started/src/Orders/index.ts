@@ -1,23 +1,25 @@
-import { groupBy } from "../utils/groupBy";
+import { groupBy } from '../utils/groupBy';
 import { Order, OrderItem } from './types';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 export const createOrderItem = (
   id: string = null,
-  orderId: string = null, 
-  sku: string = null, 
-  unitPrice: number = 0, 
-  quantity: number = 0
-): OrderItem => ({ id, orderId, sku, unitPrice, quantity });
+  orderId: string = null,
+  sku: string = null,
+  unitPrice: number = 0,
+  quantity: number = 0,
+): OrderItem => ({
+  id, orderId, sku, unitPrice, quantity,
+});
 
-const orderItemPrice = ({ unitPrice, quantity }: OrderItem): number => 
+const orderItemPrice = ({ unitPrice, quantity }: OrderItem): number =>
   round2(unitPrice * quantity);
 
 export const createOrder = (
   id: string = null,
   items: OrderItem[] = [],
-  total: number = 0
+  total: number = 0,
 ): Order => ({ id, items, total });
 
 const createOrdersMap = groupBy(
@@ -31,5 +33,5 @@ const createOrdersMap = groupBy(
 );
 
 export const ordersFromItems = (orderItems: OrderItem[]): Order[] => Array.from(
-  createOrdersMap(orderItems).values()
+  createOrdersMap(orderItems).values(),
 );

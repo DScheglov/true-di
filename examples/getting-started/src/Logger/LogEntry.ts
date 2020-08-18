@@ -1,13 +1,13 @@
 export type LogEntry = {
-	type: 'INFO' | 'ERROR',
-	timestamp: number,
-	message: string,
+  type: 'INFO' | 'ERROR',
+  timestamp: number,
+  message: string,
 }
 
 const logEntryOfType = (type: LogEntry['type']) =>
   (message: LogEntry['message']): LogEntry => ({
     type,
-    timestamp: Date.now() / 1000 | 0,
+    timestamp: Math.floor(Date.now() / 1000),
     message,
   });
 

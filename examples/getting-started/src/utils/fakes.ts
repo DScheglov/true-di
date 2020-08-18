@@ -4,5 +4,5 @@ export const fakeInt = (min: number, max: number) => Math.round(fakeFloat(min, m
 
 export const fakeItemOf = <T>(list: T[]) => (): T => list[fakeInt(0, list.length - 1)];
 
-export const fakePrice = (min: number, max: number, fractionDigits: number = 2) => 
+export const fakePrice = (min: number, max: number, fractionDigits: number = 2) =>
   parseFloat(fakeFloat(min, max).toFixed(fractionDigits));

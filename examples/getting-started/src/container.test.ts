@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { prepareAll, releaseAll } from 'true-di';
 import container from './container';
 import { IContainer } from './interfaces';
@@ -5,62 +6,65 @@ import { IContainer } from './interfaces';
 type AssertTypeEqual<T1, T2> = T1 extends T2 ? (T2 extends T1 ? true : never) : never;
 
 describe('container', () => {
-	afterEach(() => {
-		releaseAll(container);
-	});
+  beforeAll(() => {
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'trace').mockImplementation(() => {});
+  });
 
-	it('allows to get logger', () => {
-		expect(container.logger).toBeDefined();
+  afterEach(() => {
+    releaseAll(container);
+  });
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const typecheck: AssertTypeEqual<
-			typeof container.logger,
-			IContainer['logger'
-		]> = true;
-	});
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
-	it('allows to get dataSourceService', () => {
-		expect(container.dataSourceService).toBeDefined();
+  it('allows to get logger', () => {
+    expect(container.logger).toBeDefined();
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const typecheck: AssertTypeEqual<
-			typeof container.dataSourceService, 
-			IContainer['dataSourceService']
-		> = true;
-	});
+    const typecheck: AssertTypeEqual<
+      typeof container.logger,
+      IContainer['logger'
+    ]> = true;
+  });
 
-	it('allows to get ecommerceService', () => {
-		expect(container.ecommerceService).toBeDefined();
+  it('allows to get dataSourceService', () => {
+    expect(container.dataSourceService).toBeDefined();
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const typecheck: AssertTypeEqual<
-			typeof container.ecommerceService, 
-			IContainer['ecommerceService']
-		> = true;
-	});
+    const typecheck: AssertTypeEqual<
+      typeof container.dataSourceService,
+      IContainer['dataSourceService']
+    > = true;
+  });
 
-	// or just single test
-	it('allows to instantiate all items', () => {
-		const items = { ...container };
+  it('allows to get ecommerceService', () => {
+    expect(container.ecommerceService).toBeDefined();
 
-		expect(items.logger).toBeDefined();
-		expect(items.dataSourceService).toBeDefined();
-		expect(items.ecommerceService).toBeDefined();
+    const typecheck: AssertTypeEqual<
+      typeof container.ecommerceService,
+      IContainer['ecommerceService']
+    > = true;
+  });
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const typecheck: AssertTypeEqual<typeof items, IContainer> = true;
-	});
+  // or just single test
+  it('allows to instantiate all items', () => {
+    const items = { ...container };
 
+    expect(items.logger).toBeDefined();
+    expect(items.dataSourceService).toBeDefined();
+    expect(items.ecommerceService).toBeDefined();
 
-	// or the same but with prepareAll
-	it('allows to instantiate all items', () => {
-		const items = prepareAll(container);
+    const typecheck: AssertTypeEqual<typeof items, IContainer> = true;
+  });
 
-		expect(items.logger).toBeDefined();
-		expect(items.dataSourceService).toBeDefined();
-		expect(items.ecommerceService).toBeDefined();
+  // or the same but with prepareAll
+  it('allows to instantiate all items (prepareAll)', () => {
+    const items = prepareAll(container);
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const typecheck: AssertTypeEqual<typeof items, IContainer> = true;
-	});
+    expect(items.logger).toBeDefined();
+    expect(items.dataSourceService).toBeDefined();
+    expect(items.ecommerceService).toBeDefined();
+
+    const typecheck: AssertTypeEqual<typeof items, IContainer> = true;
+  });
 });
