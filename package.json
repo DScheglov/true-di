@@ -111,7 +111,7 @@
       "src/**/*.ts"
     ],
     "testPathIgnorePatterns": [
-      "/lib/', '/es/"
+      "/lib/', '/es/", "/examples"
     ]
   }
 }
