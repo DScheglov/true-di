@@ -1,5 +1,7 @@
-import { IECommerceService, ILogger, IDataSourceService, Order } from '../interfaces';
-import { ordersFromItems } from "../Orders";
+import {
+  IECommerceService, ILogger, IDataSourceService, Order,
+} from '../interfaces';
+import { ordersFromItems } from '../Orders';
 
 class ECommerceSerive implements IECommerceService {
   constructor(

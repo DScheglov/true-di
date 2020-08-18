@@ -7,8 +7,8 @@ const fakeEcommerceService = (orders: Order[]): IECommerceService => ({
 });
 
 const fakeResponse = (): Express.Response => ({
-  type: jest.fn(function () { return this }),
-  send: jest.fn(function () { return this }),
+  type: jest.fn(function () { return this; }),
+  send: jest.fn(function () { return this; }),
 }) as any;
 
 describe('controller.getOrders', () => {
@@ -16,7 +16,7 @@ describe('controller.getOrders', () => {
     expect.assertions(3);
 
     const ecommerceService = fakeEcommerceService([]);
-    const res = fakeResponse()
+    const res = fakeResponse();
 
     await getOrders(
       { container: { ecommerceService } } as Express.Request,
@@ -25,6 +25,6 @@ describe('controller.getOrders', () => {
 
     expect(ecommerceService.getOrders).toHaveBeenCalledTimes(1);
     expect(res.type).toHaveBeenCalledWith('application/json');
-    expect(res.send).toHaveBeenCalledWith("[]");
+    expect(res.send).toHaveBeenCalledWith('[]');
   });
 });
