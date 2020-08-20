@@ -6,9 +6,11 @@ const fakeEcommerceService = (orders: Order[]): IECommerceService => ({
   getOrders: jest.fn(async (): Promise<Order[]> => orders),
 });
 
+function returnThis() { return this; }
+
 const fakeResponse = (): Express.Response => ({
-  type: jest.fn(function () { return this; }),
-  send: jest.fn(function () { return this; }),
+  type: jest.fn(returnThis),
+  send: jest.fn(returnThis),
 }) as any;
 
 describe('controller.getOrders', () => {
