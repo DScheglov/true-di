@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import diContainer, {
   factoriesFrom, isReady, prepareAll, releaseAll,
 } from './di-container';

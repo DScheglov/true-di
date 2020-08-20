@@ -64,6 +64,7 @@
           "ignoreStrings": true
         }
       ],
+      "no-param-reassign": "off",
       "implicit-arrow-linebreak": "off",
       "import/no-unresolved": 0,
       "import/prefer-default-export": 0,
@@ -111,7 +112,8 @@
       "src/**/*.ts"
     ],
     "testPathIgnorePatterns": [
-      "/lib/', '/es/", "/examples"
+      "/lib/', '/es/",
+      "/examples"
     ]
   }
 }
