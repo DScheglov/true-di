@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { createOrderItem } from '../Orders';
-import { fakeItemOf, fakeInt, fakePrice } from '../utils/fakes';
+import { createOrderItem } from '../../Orders';
+import { fakeItemOf, fakeInt, fakePrice } from './generators';
 
 const NUMBER_OF_ORDER_IDS = 5;
 const NUMBER_OF_ORDER_ITEMS = 15;
