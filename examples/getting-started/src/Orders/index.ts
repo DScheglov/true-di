@@ -22,7 +22,7 @@ export const createOrder = (
   total: number = 0,
 ): Order => ({ id, items, total });
 
-const createOrdersMap = groupBy(
+export const ordersFromItems = groupBy(
   ({ orderId }: OrderItem) => orderId,
   (order: Order = createOrder(), orderItem) => {
     order.id = orderItem.orderId;
@@ -30,8 +30,4 @@ const createOrdersMap = groupBy(
     order.total = round2(order.total + orderItemPrice(orderItem));
     return order;
   },
-);
-
-export const ordersFromItems = (orderItems: OrderItem[]): Order[] => Array.from(
-  createOrdersMap(orderItems).values(),
 );
