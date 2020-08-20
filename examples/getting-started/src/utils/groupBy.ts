@@ -1,11 +1,11 @@
-export const groupBy = <K, R, T>(
-  getKey: (record: R) => K,
-  reducer: (groupTotal: T, record: R, index: number, list: R[]) => T,
-) => (records: R[]): Map<K, T> => records.reduce(
+type KeyResolver<R, K> = (record: R) => K;
+type Reducer<R, T> = (groupTotal: T, record: R, index: number, list: R[]) => T;
+
+export const groupBy = <K, R, T>(getKey: KeyResolver<R, K>, reducer: Reducer<R, T>) =>
+  (records: R[]): T[] => Array.from(records.reduce(
     (groups, record: R, index, list) => {
       const key = getKey(record);
-      groups.set(key, reducer(groups.get(key), record, index, list));
-      return groups;
+      return groups.set(key, reducer(groups.get(key), record, index, list));
     },
     new Map(),
-  );
+  ).values());

@@ -1,5 +1,5 @@
 import { IDataSourceService, ILogger, OrderItem } from '../interfaces';
-import fakeOrderItems from './fake-order-items';
+import fakeOrderItems from './__fake__/order-items';
 
 class DataSourceService implements IDataSourceService {
   private readonly _data: OrderItem[] = fakeOrderItems;
