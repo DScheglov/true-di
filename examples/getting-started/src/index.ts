@@ -4,10 +4,18 @@ import { getOrders } from './controller';
 
 const app = express();
 
-app.use((req, res, next) => {
+app.use((req, _, next) => {
   req.container = container;
   next();
 });
 
 app.get('/orders', getOrders);
-app.listen(8080);
+
+if (module.parent == null) {
+  app.listen(8080, () => {
+    console.log('Server is listening on port: 8080');
+    console.log('Follow: http://localhost:8080/orders');
+  });
+}
+
+export default app;

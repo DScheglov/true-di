@@ -6,7 +6,7 @@ class Logger implements ILogger {
     console.info(infoLogEntry(message));
   }
 
-  public error<E extends Error>(err: E) {
+  public error(err: Error) {
     console.trace(errorLogEntry(err.message));
   }
 }
