@@ -20,10 +20,7 @@ describe('controller.getOrders', () => {
     const ecommerceService = fakeEcommerceService([]);
     const res = fakeResponse();
 
-    await getOrders(
-      { container: { ecommerceService } } as Express.Request,
-      res,
-    );
+    await getOrders({ injected: { ecommerceService } } as Express.Request, res);
 
     expect(ecommerceService.getOrders).toHaveBeenCalledTimes(1);
     expect(res.type).toHaveBeenCalledWith('application/json');

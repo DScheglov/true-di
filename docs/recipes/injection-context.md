@@ -55,7 +55,7 @@ import { getOrders } from './controller';
 const app = express();
 
 app.use((req, res, next) => {
-  req.container = containerFactory(req);
+  req.injected = containerFactory(req);
   next();
 });
 

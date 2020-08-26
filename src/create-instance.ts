@@ -7,7 +7,7 @@ const createInstanceFactory = <C extends object>(
   factories: IFactories<C>,
   instances: Map<keyof C, any>,
   stack = UniqueStack<keyof C>(),
-  initializers = new Set<VoidFn>(),
+  initializers: VoidFn[] = [],
 ) => <N extends keyof C>(container: C, name: N): C[N] => {
   if (stack.push(name)[0] != null) {
     throw new Error('Cyclic dependencies couldn\'t be resolved.');
@@ -27,7 +27,7 @@ const createInstanceFactory = <C extends object>(
   instances.set(name, instance);
 
   if (typeof initializer === 'function') {
-    initializers.add(() => initializer(instance, container));
+    initializers.push(() => initializer(instance, container));
   }
 
   if (stack.pop(name)[0] != null) {
@@ -36,7 +36,7 @@ const createInstanceFactory = <C extends object>(
 
   if (stack.size === 0) {
     initializers.forEach(call);
-    initializers.clear();
+    initializers = [];
   }
 
   return instance;
