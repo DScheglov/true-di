@@ -1,7 +1,6 @@
-/* eslint-disable no-param-reassign */
 import UniqueStack from './unique-stack';
 import createInstance from './create-instance';
-import { IFactories } from './types';
+import { IFactories, VoidFn } from './types';
 
 describe('getInstance', () => {
   it('creates new instance if it is not created yet', () => {
@@ -35,7 +34,7 @@ describe('getInstance', () => {
       vector: () => ({ x: 1, y: 2 }),
     };
     const container = Object.freeze({}) as Container;
-    const initializers = new Set<() => void>();
+    const initializers: VoidFn[] = [];
 
     stack.push('vector');
 
@@ -75,7 +74,7 @@ describe('getInstance', () => {
       vector: () => ({ x: 1, y: 2 }),
     };
     const container = Object.freeze({}) as Container;
-    const initializers = new Set<() => void>();
+    const initializers: VoidFn[] = [];
 
     expect(
       () => createInstance(factories, instances, stack, initializers)(container, 'vector2' as 'vector'),

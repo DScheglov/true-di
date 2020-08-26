@@ -50,7 +50,7 @@ export default container;
 import Express from 'express';
 
 export const getOrders = async (req: Express.Request, res: Express.Response) => {
-  const { ecommerceService } = req.container;
+  const { ecommerceService } = req.injected;
   res.json(
     await ecommerceService.getOrders()
   );
@@ -67,7 +67,7 @@ import { getOrders } from './controller';
 const app = express();
 
 app.use((req, res, next) => {
-  req.container = container;
+  req.injected = container;
   next();
 });
 

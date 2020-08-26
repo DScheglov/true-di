@@ -14,7 +14,6 @@ export const assignProps = <IContainer extends object, N extends keyof IContaine
 ) => (instance: IContainer[N], container: IContainer): void =>
     allNames(mapping).forEach(
       name => {
-      // eslint-disable-next-line no-param-reassign
         instance[name] = container[mapping[name]] as any;
       },
     );

@@ -5,7 +5,7 @@ import { getOrders } from './controller';
 const app = express();
 
 app.use((req, _, next) => {
-  req.container = container;
+  req.injected = container;
   next();
 });
 
