@@ -1,6 +1,6 @@
 {
   "name": "true-di",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Simple Dependency Injection solution for TypeScript and Javascript",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
