@@ -1,6 +1,8 @@
 import Express from 'express';
-import { getOrders } from './controller';
+import { getOrdersFactory } from './controller';
 import { IECommerceService, Order } from './interfaces';
+
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 const fakeEcommerceService = (orders: Order[]): IECommerceService => ({
   getOrders: jest.fn(async (): Promise<Order[]> => orders),
@@ -20,7 +22,11 @@ describe('controller.getOrders', () => {
     const ecommerceService = fakeEcommerceService([]);
     const res = fakeResponse();
 
-    await getOrders({ ecommerceService }, null, res);
+    const getOrders = getOrdersFactory({ ecommerceService });
+
+    getOrders(null, res);
+
+    await delay(0);
 
     expect(ecommerceService.getOrders).toHaveBeenCalledTimes(1);
     expect(res.type).toHaveBeenCalledWith('application/json');

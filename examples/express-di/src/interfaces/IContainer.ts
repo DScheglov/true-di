@@ -6,4 +6,5 @@ export interface IContainer {
   logger: ILogger,
   dataSourceService: IDataSourceService,
   ecommerceService: IECommerceService,
+  getOrders(req: Express.Request, res: Express.Response): void,
 }
