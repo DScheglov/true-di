@@ -23,7 +23,9 @@ describe('Logger', () => {
     logger.info('Some Message');
 
     expect(console.info).toHaveBeenCalledTimes(1);
-    expect(console.info).toHaveBeenCalledWith({
+    expect(console.info).toHaveBeenCalledWith(
+      '0 ms:',
+      {
       type: 'INFO',
       timestamp: Math.floor(Date.now() / 1000),
       message: 'Some Message',
@@ -36,7 +38,8 @@ describe('Logger', () => {
     logger.error(new Error('Some Error Message'));
 
     expect(console.trace).toHaveBeenCalledTimes(1);
-    expect(console.trace).toHaveBeenCalledWith({
+    expect(console.trace).toHaveBeenCalledWith(
+      '0 ms:', {
       type: 'ERROR',
       timestamp: Math.floor(Date.now() / 1000),
       message: 'Some Error Message',

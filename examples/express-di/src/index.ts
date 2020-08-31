@@ -1,15 +1,14 @@
 import express from 'express';
 import container from './container';
-import { getOrders } from './controller';
-import expressDi from './express-di';
+import { provideContext, fromContext } from './request-context';
 
 const app = express();
 
-const { addInjectionContext, injectTo } = expressDi(() => container);
+app.use(
+  provideContext(() => container(Date.now()))
+);
 
-app.use(addInjectionContext);
-
-app.get('/orders', injectTo(getOrders));
+app.get('/orders', fromContext('getOrders'));
 
 if (module.parent == null) {
   app.listen(8080, () => {
