@@ -9,6 +9,8 @@ const createInstanceFactory = <C extends object>(
   stack = UniqueStack<keyof C>(),
   initializers: VoidFn[] = [],
 ) => <N extends keyof C>(container: C, name: N): C[N] => {
+  if (instances.has(name)) return instances.get(name);
+
   if (stack.push(name)[0] != null) {
     throw new Error('Cyclic dependencies couldn\'t be resolved.');
   }
