@@ -37,9 +37,7 @@ function diContainer<C extends object>(factories: IFactories<C>): C {
       Object.defineProperty(containerObj, name, {
         configurable: false,
         enumerable: Object.getOwnPropertyDescriptor(factories, name).enumerable,
-        get: () => (
-          instances.has(name) ? instances.get(name) : createInstance(container, name)
-        ),
+        get: () => createInstance(container, name),
         set: (value: null | undefined) => {
           if (value != null) {
             throw new Error('Container does\'t allow to replace items');
