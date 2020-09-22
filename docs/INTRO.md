@@ -20,7 +20,6 @@ choice of framework. Such deferring is suggested by Robert Martin:
 [&copy; 2014, Robert C. Martin: Clean Architecture and Design, NDC Conference](https://vimeo.com/68215570),
 
 Summarizing, `true-di` is based on:
-Summarizing, `true-di` is based on:
  - emulattion of a plain object that allows to specify exact type for each item and makes strict static type checking possible
  - explicit dependency injection for business logic (see example: [./src/container.ts](https://github.com/DScheglov/true-di/tree/master/examples/getting-started/src/container.ts))
  - transperent injection through the context for framework-integrated components (see example: [./src/index.ts](https://github.com/DScheglov/true-di/tree/master/examples/getting-started/src/index.ts))
