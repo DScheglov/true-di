@@ -20,7 +20,7 @@
 
 * [Accessing Items](./recipes/accessing-items.md)
 * [Releasing Items](./recipes/releasing-items.md)
-* [Creating All Itens](./recipes/creating-all-items.md)
+* [Creating All Items](./recipes/creating-all-items.md)
 * [Cyclic Dependencies](./recipes/cyclic-dependencies.md)
 <!-- * [Singletons Obly](./recipes/singletons.md) -->
 * [Injection Context](./recipes/injection-context.md)

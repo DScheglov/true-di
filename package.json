@@ -1,7 +1,7 @@
 {
   "name": "true-di",
   "version": "2.1.0",
-  "description": "Simple Dependency Injection solution for TypeScript and Javascript",
+  "description": "Framework Agnostic, Zero Dependency, Isomorphic & Minimalistic Dependency Injection Container for TypeScript and JavaScript projects",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
   "sideEffects": false,

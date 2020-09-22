@@ -2,7 +2,7 @@
 description: Not too long read about how create all items.
 ---
 
-# Creating All Itens
+# Creating All Items
 
 As usually you don't need to create all items at once, but it is quit convinient way to check if all items could be created and container doesn't have cyclic creation dependencies.
 
