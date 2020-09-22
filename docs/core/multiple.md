@@ -38,7 +38,7 @@ const { multiple } = require('true-di');
 
 ## Arguments (2nd overloading)
 
-* **factory**: `IFactoryTuple<IContainer, Name>` - factory tuple to be decorated to generate multiple instances.
+* **factoryTuple**: `IFactoryTuple<IContainer, Name>` - factory tuple to be decorated to generate multiple instances.
 
 ## Returns
 
