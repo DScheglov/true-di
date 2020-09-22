@@ -1,5 +1,8 @@
+import { AssertionError } from 'assert';
 import ECommerceService from '.';
-import { IDataSourceService, IECommerceService, ILogger } from '../interfaces';
+import {
+  IDataSourceService, IECommerceService, IInfoLogger, OrderItem,
+} from '../interfaces';
 import { ordersFromItems } from '../Orders';
 
 const fakeOrderItems = [
@@ -40,24 +43,87 @@ const fakeOrderItems = [
   },
 ];
 
-const fakeLogger: ILogger = {
-  info: jest.fn(),
-} as any;
-
-const fakeDataSource: IDataSourceService = {
-  getOrderItems: jest.fn().mockResolvedValue(fakeOrderItems),
-} as any;
-
 describe('ECommerceService', () => {
   it('allows to instantiate ecommerceService', () => {
+    const fakeLogger: IInfoLogger = {
+      info: jest.fn(),
+    };
+
+    const fakeDataSource: IDataSourceService = {
+      getOrderItems: jest.fn().mockResolvedValue(fakeOrderItems),
+    };
     const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
 
     expect(ecommerceService).toBeInstanceOf(ECommerceService);
   });
 
   it('returns orders with method .getOrders', async () => {
+    expect.assertions(1);
+
+    const fakeLogger: IInfoLogger = {
+      info: jest.fn(),
+    };
+
+    const fakeDataSource: IDataSourceService = {
+      getOrderItems: jest.fn().mockResolvedValue(fakeOrderItems),
+    };
     const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
 
     expect(await ecommerceService.getOrders()).toEqual(ordersFromItems(fakeOrderItems));
+  });
+
+  it('returns order with method .getOrderById', async () => {
+    expect.assertions(1);
+
+    const fakeLogger: IInfoLogger = {
+      info: jest.fn(),
+    };
+
+    const fakeDataSource = {
+      getOrderItems: jest.fn(
+        (predicate?: (orderItem: OrderItem) => boolean) =>
+          Promise.resolve(fakeOrderItems.filter(predicate)),
+      ),
+    };
+    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+
+    expect(
+      await ecommerceService.getOrderById(fakeOrderItems[0].orderId),
+    ).toEqual(ordersFromItems(fakeOrderItems)[0]);
+  });
+
+  it('returns null with method .getOrderById if no order is found', async () => {
+    expect.assertions(1);
+
+    const fakeLogger: IInfoLogger = {
+      info: jest.fn(),
+    };
+
+    const fakeDataSource = {
+      getOrderItems: jest.fn().mockResolvedValue([]),
+    };
+
+    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+    expect(
+      await ecommerceService.getOrderById('9acec35f-2402-40a7-92cc-664a4ade4778'),
+    ).toEqual(null);
+  });
+
+  it('throws AssertionError with method .getOrderById if id is not a UUID', async () => {
+    expect.assertions(1);
+
+    const fakeLogger: IInfoLogger = {
+      info: jest.fn(),
+    };
+
+    const fakeDataSource = {
+      getOrderItems: jest.fn().mockResolvedValue([]),
+    };
+
+    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+
+    const error = await ecommerceService.getOrderById('9acec35f-2402-40a7-92cc').catch(err => err);
+
+    expect(error).toBeInstanceOf(AssertionError);
   });
 });

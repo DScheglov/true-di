@@ -5,6 +5,7 @@
 ## Core
 
 * [diContainer](./core/di-container.md)
+* [multiple](./core/multiple.md)
 * [isReady](./core/is-ready.md)
 * [prepareAll](./core/prepare-all.md)
 * [releaseAll](./core/release-all.md)

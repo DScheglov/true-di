@@ -1,5 +1,5 @@
 declare namespace Express {
   export interface Request {
-    injected: import('./IContainer').IContainer;
+    injected: import('./IRequestInjected').RequestInjected;
   }
 }

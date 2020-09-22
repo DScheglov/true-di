@@ -1,4 +1,4 @@
-import { infoLogEntry, errorLogEntry } from './LogEntry';
+import { infoLogEntry, warnLogEntry, errorLogEntry } from './LogEntry';
 
 describe('LogEntry', () => {
   beforeEach(() => {
@@ -14,6 +14,14 @@ describe('LogEntry', () => {
       type: 'INFO',
       timestamp: Math.floor(Date.now() / 1000),
       message: 'Some Message',
+    });
+  });
+
+  it('allows to create WARNING Log Entry with errorLogEntry factory', () => {
+    expect(warnLogEntry('Some Warning')).toEqual({
+      type: 'WARNING',
+      timestamp: Math.floor(Date.now() / 1000),
+      message: 'Some Warning',
     });
   });
 

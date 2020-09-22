@@ -29,7 +29,7 @@ const createInstanceFactory = <C extends object>(
   instances.set(name, instance);
 
   if (typeof initializer === 'function') {
-    initializers.push(() => initializer(instance, container));
+    initializers.push(() => initializer(instance, container, name));
   }
 
   if (stack.pop(name)[0] != null) {

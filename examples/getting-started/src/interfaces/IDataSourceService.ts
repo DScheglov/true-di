@@ -1,5 +1,5 @@
 import { OrderItem } from '../Orders/types';
 
 export interface IDataSourceService {
-  getOrderItems(): Promise<OrderItem[]>
+  getOrderItems(predicate?: (orderItem: OrderItem) => boolean): Promise<OrderItem[]>
 }

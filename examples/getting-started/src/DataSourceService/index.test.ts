@@ -1,10 +1,10 @@
 import DataSourceService from '.';
-import { IDataSourceService, ILogger } from '../interfaces';
+import { IDataSourceService, IInfoLogger } from '../interfaces';
 import fakeOrderItems from './__fake__/order-items';
 
-const fakeLogger: ILogger = {
+const fakeLogger: IInfoLogger = {
   info: jest.fn(),
-} as any;
+};
 
 describe('DataSourceService', () => {
   it('allows to instantiate dataSourceService', () => {
@@ -24,5 +24,13 @@ describe('DataSourceService', () => {
     const dataSourceService: IDataSourceService = new DataSourceService(fakeLogger);
 
     expect(await dataSourceService.getOrderItems()).toEqual(fakeOrderItems);
+  });
+
+  it('returns filtered list of order items with method getOrderItems', async () => {
+    const dataSourceService: IDataSourceService = new DataSourceService(fakeLogger);
+
+    expect(await dataSourceService.getOrderItems(
+      ({ id }) => id === fakeOrderItems[0].id,
+    )).toEqual([fakeOrderItems[0]]);
   });
 });

@@ -1,5 +1,5 @@
 export type LogEntry = {
-  type: 'INFO' | 'ERROR',
+  type: 'INFO' | 'WARNING' | 'ERROR',
   timestamp: number,
   message: string,
 }
@@ -12,4 +12,5 @@ const logEntryOfType = (type: LogEntry['type']) =>
   });
 
 export const infoLogEntry = logEntryOfType('INFO');
+export const warnLogEntry = logEntryOfType('WARNING');
 export const errorLogEntry = logEntryOfType('ERROR');

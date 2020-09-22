@@ -1,10 +1,16 @@
 import diContainer from 'true-di';
-import { IContainer } from './interfaces';
+import { ILogger, IDataSourceService, IECommerceService } from './interfaces';
 import Logger from './Logger';
 import DataSourceService from './DataSourceService';
 import ECommerceService from './ECommerceService';
 
-export default diContainer<IContainer>({
+type IServices = {
+  logger: ILogger,
+  dataSourceService: IDataSourceService,
+  ecommerceService: IECommerceService,
+}
+
+export default diContainer<IServices>({
   logger: () =>
     new Logger(),
 

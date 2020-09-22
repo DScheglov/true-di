@@ -1,6 +1,7 @@
 import express from 'express';
 import container from './container';
-import { getOrders } from './controller';
+import { getOrderById, getOrders } from './controller';
+import { handleErrors } from './middlewares';
 
 const app = express();
 
@@ -10,6 +11,9 @@ app.use((req, _, next) => {
 });
 
 app.get('/orders', getOrders);
+app.get('/orders/:id', getOrderById);
+
+app.use(handleErrors);
 
 if (module.parent == null) {
   app.listen(8080, () => {
