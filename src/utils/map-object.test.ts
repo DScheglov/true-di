@@ -1,5 +1,5 @@
+import { expectStrictType } from '../types';
 import mapObject from './map-object';
-import { expectStrictType } from './type-test-utils';
 
 describe('mapOject', () => {
   it('maps empty object to empty object', () => {
