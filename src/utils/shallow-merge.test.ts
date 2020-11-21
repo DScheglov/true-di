@@ -1,4 +1,4 @@
-import { expectStrictType } from './type-test-utils';
+import { expectStrictType } from '../types';
 import { shallowMerge } from './shallow-merge';
 
 describe('shallowMerge', () => {

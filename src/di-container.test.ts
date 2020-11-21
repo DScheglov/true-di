@@ -1,10 +1,9 @@
 import diContainer, {
   factoriesFrom, isReady, prepareAll, releaseAll,
 } from './di-container';
-import { expectStrictType } from './utils/type-test-utils';
 import { assignProps } from './utils/assign-props';
 import allNames from './utils/all-names';
-import { IFactories } from './types';
+import { expectStrictType, IFactories } from './types';
 
 describe('diContainer', () => {
   it('creates a container', () => {
