@@ -1,5 +1,5 @@
+import { expectStrictType } from './types';
 import UniqueStack from './unique-stack';
-import { expectStrictType } from './utils/type-test-utils';
 
 describe('UniqueStack', () => {
   it('implements UniqueStack Interface', () => {
