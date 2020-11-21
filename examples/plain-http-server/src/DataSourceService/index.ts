@@ -8,11 +8,11 @@ type DataSourceServiceDeps = {
 const DataSourceService = ({ logger }: DataSourceServiceDeps): IDataSourceService => {
   logger.info('DataSourseService has been created');
 
-  const data = fakeOrderItems
+  const data = fakeOrderItems;
 
   const getOrderItems = (predicate?: (orderItem: OrderItem) => boolean): Promise<OrderItem[]> =>
     Promise.resolve(
-      typeof predicate === 'function' ? data.filter(predicate) : data
+      typeof predicate === 'function' ? data.filter(predicate) : data,
     );
 
   return {
