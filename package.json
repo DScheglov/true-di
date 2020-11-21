@@ -1,6 +1,6 @@
 {
   "name": "true-di",
-  "version": "2.1.5",
+  "version": "2.2.0-betta.0",
   "description": "Framework Agnostic, Zero Dependency, Isomorphic & Minimalistic Dependency Injection Container for TypeScript and JavaScript projects",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
