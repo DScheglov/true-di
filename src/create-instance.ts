@@ -12,7 +12,10 @@ const createInstanceFactory = <C extends object>(
   if (instances.has(name)) return instances.get(name);
 
   if (stack.push(name)[0] != null) {
-    throw new Error('Cyclic dependencies couldn\'t be resolved.');
+    throw new Error(
+      'Cyclic dependencies couldn\'t be resolved.\n\n' +
+      `Requested: ${name}\nResolution stack:\n\t${stack.items.join('\n\t')}`,
+    );
   }
 
   const itemFactory = factories[name];

@@ -9,6 +9,7 @@ describe('UniqueStack', () => {
       push:(value: string) => [Error, null] | [null, string],
       pop: (expected?: string) => [Error, null] | [null, string],
       readonly size: number,
+      readonly items: string[],
     };
 
     expectStrictType<Expected>(stack);
@@ -42,6 +43,16 @@ describe('UniqueStack', () => {
     expect(res2).toBe(2);
 
     expect(res3).toBe(1);
+  });
+
+  it('allows to get stack items', () => {
+    const stack = UniqueStack<string>();
+
+    stack.push('alpha');
+    stack.push('betta');
+    stack.push('gamma');
+
+    expect(stack.items).toEqual(['gamma', 'betta', 'alpha']);
   });
 
   it('returns an error when duplicated item is pushed', () => {

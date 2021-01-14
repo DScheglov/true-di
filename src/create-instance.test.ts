@@ -40,7 +40,7 @@ describe('getInstance', () => {
 
     expect(
       () => createInstance(factories, instances, stack, initializers)(container, 'vector'),
-    ).toThrow('Cyclic dependencies couldn\'t be resolved.');
+    ).toThrow(new Error('Cyclic dependencies couldn\'t be resolved.\n\nRequested: vector\nResolution stack:\n\tvector'));
   });
 
   it('throws an error in case of intercepted exception', () => {

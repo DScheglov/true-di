@@ -3,6 +3,7 @@ export type ETuple<E, T> = [E, null] | [null, T];
 export type IUniqueStack<T> = {
   push:(value: T) => ETuple<Error, T>,
   pop: (expected?: T) => ETuple<Error, T>,
+  readonly items: T[],
   readonly size: number,
 };
 
@@ -33,6 +34,9 @@ const UniqueStackApi = <T>(stack: T[], set: Set<T>): IUniqueStack<T> => ({
   pop: _pop(stack, set),
   get size(): number {
     return stack.length;
+  },
+  get items(): T[] {
+    return stack.slice();
   },
 });
 
