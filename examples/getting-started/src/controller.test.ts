@@ -19,6 +19,8 @@ const fakeResponse = (): Express.Response => ({
   send: jest.fn(returnThis),
 }) as any;
 
+const fakeRequest = <P extends {} >(params: P = {} as P): Express.Request<P> => ({ params }) as any;
+
 describe('controller.getOrders', () => {
   it('sends json recieved from the ecommerceService.getOrders', async () => {
     expect.assertions(4);
@@ -27,7 +29,7 @@ describe('controller.getOrders', () => {
     const res = fakeResponse();
     const next = jest.fn();
 
-    await getOrders({ injected: { ecommerceService } }, res, next);
+    await getOrders(fakeRequest(), res, next)({ ecommerceService });
 
     expect(ecommerceService.getOrders).toHaveBeenCalledTimes(1);
     expect(res.type).toHaveBeenCalledWith('application/json');
@@ -43,10 +45,11 @@ describe('controller.getOrderById', () => {
     const res = fakeResponse();
     const next = jest.fn();
 
-    await getOrderById({
-      params: { id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' },
-      injected: { ecommerceService },
-    }, res, next);
+    await getOrderById(
+      fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' }),
+      res,
+      next,
+    )({ ecommerceService });
 
     expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(ecommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd-13a05525ab11');
@@ -61,10 +64,11 @@ describe('controller.getOrderById', () => {
     const res = fakeResponse();
     const next = jest.fn();
 
-    await getOrderById({
-      params: { id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' },
-      injected: { ecommerceService },
-    }, res, next);
+    await getOrderById(
+      fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' }),
+      res,
+      next,
+    )({ ecommerceService });
 
     expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(res.send).not.toHaveBeenCalled();
@@ -82,10 +86,11 @@ describe('controller.getOrderById', () => {
     const res = fakeResponse();
     const next = jest.fn();
 
-    await getOrderById({
-      params: { id: '0c6dc1ff-b678-475a-a8cd' },
-      injected: { ecommerceService },
-    }, res, next);
+    await getOrderById(
+      fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd' }),
+      res,
+      next,
+    )({ ecommerceService });
 
     expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(ecommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd');

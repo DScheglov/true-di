@@ -1,16 +1,14 @@
 import { AssertionError } from 'assert';
 import Express from 'express';
 import { IErrorLogger, IWarnLogger } from './interfaces';
-import { Injected } from './interfaces/IRequestInjected';
 import { NotFoundError } from './utils/NotFoundError';
 
 export const handleErrors = (
   err: Error,
-  { injected: { logger } }: Injected<{ logger: IWarnLogger & IErrorLogger }>,
+  req: Express.Request,
   res: Express.Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: any, // Express requires function with arity 4
-) => {
+  next: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+) => ({ logger }: { logger: IWarnLogger & IErrorLogger }) => {
   const statusCode =
     err instanceof AssertionError ? 400 :
     err instanceof NotFoundError ? 404 :

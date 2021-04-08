@@ -22,7 +22,7 @@ describe('handleErrors', () => {
     const next = jest.fn();
     const error = new AssertionError({ message: 'Something is wrong' });
 
-    handleErrors(error, { injected: { logger: fakeLogger } }, res, next);
+    handleErrors(error, {} as Express.Request, res, next)({ logger: fakeLogger });
 
     expect(next).not.toHaveBeenCalled();
     expect(fakeLogger.warn).toHaveBeenCalledWith('Something is wrong');
@@ -40,7 +40,7 @@ describe('handleErrors', () => {
     const next = jest.fn();
     const error = new NotFoundError('Entity');
 
-    handleErrors(error, { injected: { logger: fakeLogger } }, res, next);
+    handleErrors(error, {} as Express.Request, res, next)({ logger: fakeLogger });
 
     expect(next).not.toHaveBeenCalled();
     expect(fakeLogger.warn).toHaveBeenCalledWith('The Entity is not found.');
@@ -58,7 +58,7 @@ describe('handleErrors', () => {
     const next = jest.fn();
     const error = new Error('Some Error');
 
-    handleErrors(error, { injected: { logger: fakeLogger } }, res, next);
+    handleErrors(error, {} as Express.Request, res, next)({ logger: fakeLogger });
 
     expect(next).not.toHaveBeenCalled();
     expect(fakeLogger.error).toHaveBeenCalledWith(error);

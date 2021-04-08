@@ -1,25 +1,17 @@
-import Express from 'express';
+import { Request, Response, NextFunction as Next } from 'express';
 import { IGetOrderById, IGetOrders } from './interfaces';
-import { Injected } from './interfaces/IRequestInjected';
 import { sendJson } from './utils/sendJson';
 import { expectFound } from './utils/NotFoundError';
 
-export const getOrders = (
-  { injected: { ecommerceService } }: Injected<{ ecommerceService: IGetOrders }>,
-  res: Express.Response,
-  next: Express.NextFunction,
-) =>
-  ecommerceService
-    .getOrders()
-    .then(sendJson(res), next);
+export const getOrders = (req: Request, res: Response, next: Next) =>
+  ({ ecommerceService }: { ecommerceService: IGetOrders }) =>
+    ecommerceService
+      .getOrders()
+      .then(sendJson(res), next);
 
-export const getOrderById = (
-  { params, injected: { ecommerceService } }:
-    { params: { id: string } } & Injected<{ ecommerceService: IGetOrderById }>,
-  res: Express.Response,
-  next: Express.NextFunction,
-) =>
-  ecommerceService
-    .getOrderById(params.id)
-    .then(expectFound(`Order(${params.id})`))
-    .then(sendJson(res), next);
+export const getOrderById = ({ params }: Request<{ id: string }>, res: Response, next: Next) =>
+  ({ ecommerceService }: { ecommerceService: IGetOrderById }) =>
+    ecommerceService
+      .getOrderById(params.id)
+      .then(expectFound(`Order(${params.id})`))
+      .then(sendJson(res), next);
