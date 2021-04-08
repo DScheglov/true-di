@@ -83,61 +83,48 @@ export default ECommerceSerive;
 **./src/controller.ts**
 
 ```typescript
-import Express from 'express';
+import { Request, Response, NextFunction as Next } from 'express';
 import { IGetOrderById, IGetOrders } from './interfaces';
-import { Injected } from './interfaces/IRequestInjected';
 import { sendJson } from './utils/sendJson';
 import { expectFound } from './utils/NotFoundError';
 
-export const getOrders = (
-  { injected: { ecommerceService } }: Injected<{ ecommerceService: IGetOrders }>,
-  res: Express.Response,
-  next: Express.NextFunction,
-) =>
-  ecommerceService
-    .getOrders()
-    .then(sendJson(res), next);
+export const getOrders = (req: Request, res: Response, next: Next) =>
+  ({ ecommerceService }: { ecommerceService: IGetOrders }) =>
+    ecommerceService
+      .getOrders()
+      .then(sendJson(res), next);
 
-export const getOrderById = (
-  { params, injected: { ecommerceService } }:
-    { params: { id: string } } & Injected<{ ecommerceService: IGetOrderById }>,
-  res: Express.Response,
-  next: Express.NextFunction,
-) =>
-  ecommerceService
-    .getOrderById(params.id)
-    .then(expectFound(`Order(${params.id})`))
-    .then(sendJson(res), next);
+export const getOrderById = ({ params }: Request<{ id: string }>, res: Response, next: Next) =>
+  ({ ecommerceService }: { ecommerceService: IGetOrderById }) =>
+    ecommerceService
+      .getOrderById(params.id)
+      .then(expectFound(`Order(${params.id})`))
+      .then(sendJson(res), next);
 ```
 
 **./src/index.ts**
 
 ```typescript
 import express from 'express';
+import createContext from 'express-async-context';
 import container from './container';
 import { getOrderById, getOrders } from './controller';
 import { handleErrors } from './middlewares';
 
 const app = express();
+const Context = createContext(() => container);
 
-app.use((req, _, next) => {
-  req.injected = container;
-  next();
+app.use(Context.provider);
+
+app.get('/orders', Context.consumer(getOrders));
+app.get('/orders/:id', Context.consumer(getOrderById));
+
+app.use(Context.consumer(handleErrors));
+
+app.listen(8080, () => {
+  console.log('Server is listening on port: 8080');
+  console.log('Follow: http://localhost:8080/orders');
 });
-
-app.get('/orders', getOrders);
-app.get('/orders/:id', getOrderById);
-
-app.use(handleErrors);
-
-if (module.parent == null) {
-  app.listen(8080, () => {
-    console.log('Server is listening on port: 8080');
-    console.log('Follow: http://localhost:8080/orders');
-  });
-}
-
-export default app;
 ```
 
 ## Motivation
