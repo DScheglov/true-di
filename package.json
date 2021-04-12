@@ -1,6 +1,6 @@
 {
   "name": "true-di",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "Zero Dependency, Minimalistic **Type-Safe DI Container** for TypeScript and JavaScript projects",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
