@@ -1,18 +1,21 @@
 import express from 'express';
-import createContext from 'express-async-context';
-import container from './container';
-import { getOrderById, getOrders } from './controller';
+
+import container, { run } from './container';
+import Logger from './Logger';
 import { handleErrors } from './middlewares';
+import { first } from './utils/first';
 
 const app = express();
-const Context = createContext(() => container);
 
-app.use(Context.provider);
+app.use((req, res, next) => run({
+  logLevel: Logger.parseLogLevel(first(req.headers['x-log-level'])),
+  traceId: first(req.headers['x-trace-id']),
+}, next));
 
-app.get('/orders', Context.consumer(getOrders));
-app.get('/orders/:id', Context.consumer(getOrderById));
+app.get('/orders', container.ordersController.getOrders);
+app.get('/orders/:id', container.ordersController.getOrderById);
 
-app.use(Context.consumer(handleErrors));
+app.use(handleErrors(container));
 
 if (module === require.main) {
   app.listen(8080, () => {

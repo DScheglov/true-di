@@ -3,12 +3,12 @@ import Express from 'express';
 import { IErrorLogger, IWarnLogger } from './interfaces';
 import { NotFoundError } from './utils/NotFoundError';
 
-export const handleErrors = (
+export const handleErrors = ({ logger }: { logger: IWarnLogger & IErrorLogger }) => (
   err: Error,
   req: Express.Request,
   res: Express.Response,
   next: any, // eslint-disable-line @typescript-eslint/no-unused-vars
-) => ({ logger }: { logger: IWarnLogger & IErrorLogger }) => {
+) => {
   const statusCode =
     err instanceof AssertionError ? 400 :
     err instanceof NotFoundError ? 404 :

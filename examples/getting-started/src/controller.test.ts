@@ -1,14 +1,12 @@
 import { AssertionError } from 'assert';
 import Express from 'express';
-import { getOrderById, getOrders } from './controller';
+import ordersController from './controller';
+
 import { IGetOrderById, IGetOrders, Order } from './interfaces';
 import { NotFoundError } from './utils/NotFoundError';
 
-const fakeGetOrdersService = (orders: Order[]): IGetOrders => ({
+const fakeGetOrdersService = (orders: Order[]): IGetOrders & IGetOrderById => ({
   getOrders: jest.fn(async (): Promise<Order[]> => orders),
-});
-
-const fakeGetOrderByIdService = (orders: Order[]): IGetOrderById => ({
   getOrderById: jest.fn(async (): Promise<Order|null> => orders[0]),
 });
 
@@ -26,10 +24,11 @@ describe('controller.getOrders', () => {
     expect.assertions(4);
 
     const ecommerceService = fakeGetOrdersService([]);
+    const { getOrders } = ordersController({ ecommerceService });
     const res = fakeResponse();
     const next = jest.fn();
 
-    await getOrders(fakeRequest(), res, next)({ ecommerceService });
+    await getOrders(fakeRequest(), res, next);
 
     expect(ecommerceService.getOrders).toHaveBeenCalledTimes(1);
     expect(res.type).toHaveBeenCalledWith('application/json');
@@ -41,7 +40,8 @@ describe('controller.getOrders', () => {
 describe('controller.getOrderById', () => {
   it('sends json recieved from the ecommerceService.getOrderById', async () => {
     expect.assertions(5);
-    const ecommerceService = fakeGetOrderByIdService([{} as Order]);
+    const ecommerceService = fakeGetOrdersService([{} as Order]);
+    const { getOrderById } = ordersController({ ecommerceService });
     const res = fakeResponse();
     const next = jest.fn();
 
@@ -49,7 +49,7 @@ describe('controller.getOrderById', () => {
       fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' }),
       res,
       next,
-    )({ ecommerceService });
+    );
 
     expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(ecommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd-13a05525ab11');
@@ -60,7 +60,8 @@ describe('controller.getOrderById', () => {
 
   it('calls next function with NotFoundError if order is not found', async () => {
     expect.assertions(4);
-    const ecommerceService = fakeGetOrderByIdService([null]);
+    const ecommerceService = fakeGetOrdersService([null]);
+    const { getOrderById } = ordersController({ ecommerceService });
     const res = fakeResponse();
     const next = jest.fn();
 
@@ -68,7 +69,7 @@ describe('controller.getOrderById', () => {
       fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' }),
       res,
       next,
-    )({ ecommerceService });
+    );
 
     expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(res.send).not.toHaveBeenCalled();
@@ -78,11 +79,15 @@ describe('controller.getOrderById', () => {
 
   it('calls next function with AssertionError if id is not a valid UUID', async () => {
     expect.assertions(5);
-    const ecommerceService = {
-      getOrderById: jest.fn(async (id: string): Promise<Order|null> => {
+
+    const ecommerceService = fakeGetOrdersService([null]);
+    const { getOrderById } = ordersController({ ecommerceService });
+
+    (ecommerceService
+      .getOrderById as any)
+      .mockImplementationOnce(async (id: string): Promise<Order|null> => {
         throw new AssertionError({ message: `${id} is not a UUID` });
-      }),
-    };
+      });
     const res = fakeResponse();
     const next = jest.fn();
 
@@ -90,7 +95,7 @@ describe('controller.getOrderById', () => {
       fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd' }),
       res,
       next,
-    )({ ecommerceService });
+    );
 
     expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(ecommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd');

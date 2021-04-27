@@ -3,15 +3,20 @@ import { IGetOrderById, IGetOrders } from './interfaces';
 import { sendJson } from './utils/sendJson';
 import { expectFound } from './utils/NotFoundError';
 
-export const getOrders = (req: Request, res: Response, next: Next) =>
-  ({ ecommerceService }: { ecommerceService: IGetOrders }) =>
+type Dependencies = { ecommerceService: IGetOrders & IGetOrderById };
+
+const ordersController = ({ ecommerceService }: Dependencies) => ({
+  getOrders: (req: Request, res: Response, next: Next) =>
     ecommerceService
       .getOrders()
-      .then(sendJson(res), next);
+      .then(sendJson(res), next),
 
-export const getOrderById = ({ params }: Request<{ id: string }>, res: Response, next: Next) =>
-  ({ ecommerceService }: { ecommerceService: IGetOrderById }) =>
+  getOrderById: ({ params }: Request<{ id: string }>, res: Response, next: Next) =>
     ecommerceService
       .getOrderById(params.id)
       .then(expectFound(`Order(${params.id})`))
-      .then(sendJson(res), next);
+      .then(sendJson(res), next),
+
+});
+
+export default ordersController;

@@ -10,23 +10,35 @@ export enum LogLevel {
 }
 
 class Logger implements ILogger {
-  constructor(private readonly _level: LogLevel = LogLevel.VERBOSE) {
-    console.log('Logging level is', _level);
+  static parseLogLevel = (value: string): LogLevel | undefined => (
+    /^S(?:ILENT)?$/i.test(value) ? LogLevel.SILENT :
+    /^E(?:RROR)?$/i.test(value) ? LogLevel.ERROR :
+    /^W(?:ARNING)?$/i.test(value) ? LogLevel.WARNING :
+    /^I(?:NFO)?$/i.test(value) ? LogLevel.INFO :
+    /^V(?:ERBOSE)?$/i.test(value) ? LogLevel.VERBOSE :
+    undefined
+  );
+
+  constructor(
+    private readonly _level: LogLevel = LogLevel.VERBOSE,
+    private readonly _traceId: string = Math.random().toFixed(20).slice(2),
+  ) {
+    console.log(this._traceId, 'Creating Logger with logging level:', _level);
   }
 
   public info(message: string) {
     if (this._level < LogLevel.INFO) return;
-    console.info(infoLogEntry(message));
+    console.info(this._traceId, infoLogEntry(message));
   }
 
   public warn(message: string) {
     if (this._level < LogLevel.WARNING) return;
-    console.warn(warnLogEntry(message));
+    console.warn(this._traceId, warnLogEntry(message));
   }
 
   public error(err: Error) {
     if (this._level < LogLevel.ERROR) return;
-    console.error(errorLogEntry(err.message));
+    console.error(this._traceId, errorLogEntry(err.message));
   }
 }
 

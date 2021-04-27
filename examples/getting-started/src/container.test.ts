@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { prepareAll, releaseAll } from 'true-di';
 import container from './container';
+import ordersController from './controller';
 import { IDataSourceService, IECommerceService, ILogger } from './interfaces';
 
 type AssertTypeEqual<T1, T2> = T1 extends T2 ? (T2 extends T1 ? true : never) : never;
@@ -51,6 +52,7 @@ describe('container', () => {
         logger: ILogger,
         dataSourceService: IDataSourceService,
         ecommerceService: IECommerceService,
+        ordersController: ReturnType<typeof ordersController>,
       }> = true;
   });
 
@@ -67,6 +69,7 @@ describe('container', () => {
         logger: ILogger,
         dataSourceService: IDataSourceService,
         ecommerceService: IECommerceService,
+        ordersController: ReturnType<typeof ordersController>,
       }> = true;
   });
 });

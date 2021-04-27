@@ -14,18 +14,18 @@ describe('Logger', () => {
   });
 
   it('creates a logger object with new operator', () => {
-    const logger = new Logger();
+    const logger = new Logger(undefined, 'trace-id');
 
     expect(logger).toBeInstanceOf(Logger);
   });
 
   it('prints to console info message with .info method', () => {
-    const logger = new Logger();
+    const logger = new Logger(undefined, 'trace-id');
 
     logger.info('Some Message');
 
     expect(console.info).toHaveBeenCalledTimes(1);
-    expect(console.info).toHaveBeenCalledWith({
+    expect(console.info).toHaveBeenCalledWith('trace-id', {
       type: 'INFO',
       timestamp: Math.floor(Date.now() / 1000),
       message: 'Some Message',
@@ -41,12 +41,12 @@ describe('Logger', () => {
   });
 
   it('prints to console warning message with .warn method', () => {
-    const logger = new Logger();
+    const logger = new Logger(undefined, 'trace-id');
 
     logger.warn('Some Warning');
 
     expect(console.warn).toHaveBeenCalledTimes(1);
-    expect(console.warn).toHaveBeenCalledWith({
+    expect(console.warn).toHaveBeenCalledWith('trace-id', {
       type: 'WARNING',
       timestamp: Math.floor(Date.now() / 1000),
       message: 'Some Warning',
@@ -62,12 +62,12 @@ describe('Logger', () => {
   });
 
   it('prints to console error message with .error method', () => {
-    const logger = new Logger();
+    const logger = new Logger(undefined, 'trace-id');
 
     logger.error(new Error('Some Error Message'));
 
     expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith({
+    expect(console.error).toHaveBeenCalledWith('trace-id', {
       type: 'ERROR',
       timestamp: Math.floor(Date.now() / 1000),
       message: 'Some Error Message',
