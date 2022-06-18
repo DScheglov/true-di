@@ -36,7 +36,7 @@ function diContainer<C extends object>(factories: IFactories<C>): C {
     (containerObj, name) =>
       Object.defineProperty(containerObj, name, {
         configurable: false,
-        enumerable: Object.getOwnPropertyDescriptor(factories, name).enumerable,
+        enumerable: Object.getOwnPropertyDescriptor(factories, name)!.enumerable,
         get: () => createInstance(container, name),
         set: (value: null | undefined) => {
           if (value != null) {

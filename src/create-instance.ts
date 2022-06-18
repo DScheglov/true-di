@@ -14,7 +14,7 @@ const createInstanceFactory = <C extends object>(
   if (stack.push(name)[0] != null) {
     throw new Error(
       'Cyclic dependencies couldn\'t be resolved.\n\n' +
-      `Requested: ${name}\nResolution stack:\n\t${stack.items.join('\n\t')}`,
+      `Requested: ${String(name)}\nResolution stack:\n\t${stack.items.join('\n\t')}`,
     );
   }
 
@@ -25,7 +25,7 @@ const createInstanceFactory = <C extends object>(
   );
 
   if (typeof factory !== 'function') {
-    throw new Error(`Factory is not defined for name "${name}"`);
+    throw new Error(`Factory is not defined for name "${String(name)}"`);
   }
 
   const instance = factory(container);
