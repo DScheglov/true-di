@@ -385,6 +385,44 @@ describe('diContainer', () => {
 
     expect(container.z).toBe(true);
   });
+
+  it('allows to expose only part of container', () => {
+    const factory1 = (): number => 1;
+    const factory2 = ({ service1 }: { service1: number }): string => `${service1}`;
+    const factory3 = (
+      { service1, service2 }: { service1: number, service2: string },
+    ): [number, string] => [service1, service2];
+
+    const container = diContainer({
+      service1: factory1,
+      service2: factory2,
+    }, {
+      service3: factory3,
+    });
+
+    expectStrictType<{service3: [number, string] }>(container);
+
+    expect(container).toEqual({ service3: [1, '1'] });
+  });
+
+  it('allows to use public service in private factory', () => {
+    const factory1 = (): number => 1;
+    const factory2 = ({ service1 }: { service1: number }): string => `${service1}`;
+    const factory3 = (
+      { service1, service2 }: { service1: number, service2: string },
+    ): [number, string] => [service1, service2];
+
+    const container = diContainer({
+      service2: factory2,
+    }, {
+      service1: factory1,
+      service3: factory3,
+    });
+
+    expectStrictType<{ service1: number, service3: [number, string] }>(container);
+
+    expect(container).toEqual({ service1: 1, service3: [1, '1'] });
+  });
 });
 
 describe('isReady', () => {

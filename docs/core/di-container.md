@@ -18,15 +18,28 @@ const { default: diContainer } = require('true-di');
 
 ```typescript
 function diContainer<IContainer extends object>(factories: IFactories<IContainer>): IContainer
+function diContainer<Private extends object, Public extends object>(
+  privateFactories: Pick<IFactories<Private & Public>, keyof Private>,
+  publicFactories: Pick<IFactories<Private & Public>, keyof Public>,
+): Public
 ```
 
-## Arguments
+## Arguments (1st overload)
 
 * **factories**: `IFactories<IContainer>` -- plain JavaScript object that is used as a map, where field names are item names and values are factory-functions that create correspondent items. To support property/setter injections the values of the factories-object could be a tuple (array), the first item of such tuple is a factory function and the second is an instance initializer.
 
-## Returns
+## Returns (1st overload)
 
 * **container**: `IContainer`
+
+## Arguments (2nd overload)
+
+* **privateFactories**: `Pick<IFactories<Private & Public>, keyof Private>` - the factories of the private services
+* **publicFactories**: `Pick<IFactories<Private & Public>, keyof Public>` - the factories of the public services
+
+## Returns (2st overload)
+
+* **container**: `Public` - container resolving public services only
 
 ## Factory Types
 
@@ -92,6 +105,37 @@ const container = diContainer<IContainer>({
 });
 
 export default container;
+```
+
+## Example "Exposing only ECommerceService"
+
+```typescript
+import diContainer from 'true-di';
+import { IInfoLogger, IDataSourceService } from "./interfaces";
+import Logger from './Logger';
+import DataSourceService from './DataSourceService';
+import ECommerceService from './ECommerceService';
+
+const createLogger = () =>
+  new Logger();
+
+const createDataSourceService = ({ logger }: {
+  logger: IInfoLogger
+}) => new DataSourceService(logger);
+
+const createECommerceService = ({ logger, dataSourceService }: {
+  logger: IInfoLogger,
+  dataSourceService: IDataSourceService,
+}) => new ECommerceService(logger, dataSourceService);
+
+const { ecommerceService } = diContainer({
+  logger: createLogger,
+  dataSourceService: createDataSourceService,
+}, {
+  ecommerceService: createECommerceService,
+});
+
+await ecommerceService.getOrders();
 ```
 
 ## Example "Working With Cyclic Dependencies"
