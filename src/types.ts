@@ -1,7 +1,7 @@
 export type IInstanceInitializer<IContainer, N extends keyof IContainer> = (
   instance: IContainer[N],
   container: IContainer,
-  name?: N,
+  name: N,
 ) => void;
 
 export type VoidFn = () => void;

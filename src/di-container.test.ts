@@ -161,6 +161,7 @@ describe('diContainer', () => {
 
     expect(
       () => {
+        // @ts-ignore
         delete container.x;
       },
     ).toThrow();
@@ -180,7 +181,7 @@ describe('diContainer', () => {
     });
 
     const prevValueX = container.x;
-    container.x = null;
+    container.x = null as any;
 
     expect(container.x).toEqual({ value: 42 });
     expect(container.x).not.toBe(prevValueX);
@@ -198,10 +199,10 @@ describe('diContainer', () => {
       z: ({ x, y }) => x + y,
     });
 
-    const descriptor = Object.getOwnPropertyDescriptor(container, 'x');
+    const descriptor = Object.getOwnPropertyDescriptor(container, 'x')!;
     expect(descriptor.enumerable).toBeTruthy();
 
-    expect(descriptor.get()).toBe(42);
+    expect(descriptor.get!()).toBe(42);
   });
 
   it('ownPropertyDescriptor returns undefined if field is not defined', () => {
@@ -248,16 +249,16 @@ describe('diContainer', () => {
       [y]: ({ x }) => x * 2,
     });
 
-    const descriptor = Object.getOwnPropertyDescriptor(container, y);
+    const descriptor = Object.getOwnPropertyDescriptor(container, y)!;
     expect(descriptor.enumerable).toBeTruthy();
 
-    expect(descriptor.get()).toBe(84);
+    expect(descriptor.get!()).toBe(84);
   });
 
   it('calls initializer to resolve cyclic dependencies (both initialzier)', () => {
     type Node = {
-      child: Node,
-      parent: Node,
+      child: Node | null,
+      parent: Node | null,
     }
 
     type Container = {
@@ -286,8 +287,8 @@ describe('diContainer', () => {
   it('calls initializer to resolve cyclic dependencies (both initialzier) with assignProps', () => {
     type Node = {
       name: string,
-      child: Node,
-      parent: Node,
+      child: Node | null,
+      parent: Node | null,
     }
 
     type Container = {
@@ -424,6 +425,7 @@ describe('isReady', () => {
 
     expect(isReady(container, 'x')).toBeTruthy();
 
+    // @ts-ignore
     container.x = null;
 
     expect(isReady(container, 'x')).toBeFalsy();

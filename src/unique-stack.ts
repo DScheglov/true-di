@@ -19,7 +19,7 @@ const _pop = <T>(stack: T[], set: Set<T>) => (expected?: T): ETuple<Error, T> =>
     return [new Error('Trying to extract item from the empty stack'), null];
   }
 
-  const last = stack.shift();
+  const last = stack.shift()!;
   set.delete(last);
 
   return (

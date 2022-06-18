@@ -47,7 +47,7 @@ describe('multiple', () => {
   it('could be used to multiplicate container item (factory tuple)', () => {
     type Node = {
       index: number,
-      parent: Node,
+      parent: Node | null,
       children: Node[],
     }
 

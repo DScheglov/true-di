@@ -2,7 +2,7 @@ import { IFactory, IFactoryTuple, IFactories } from './types';
 import allNames from './utils/all-names';
 
 const cleaner = <C>(instance: any, container: C, name: keyof C) => {
-  container[name] = null;
+  container[name] = null as any;
 };
 
 const decorateFactory = <C, N extends keyof C>(factory: IFactory<C, N>): IFactoryTuple<C, N> => [

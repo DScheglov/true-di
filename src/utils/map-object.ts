@@ -10,7 +10,7 @@ const mapObject = <
     names: Names[] = allNames(obj) as Names[],
   ): DestType => names.reduce(
     (newObj, key) => Object.defineProperty(newObj, key, {
-      enumerable: Object.getOwnPropertyDescriptor(obj, key).enumerable,
+      enumerable: Object.getOwnPropertyDescriptor(obj, key)!.enumerable,
       value: mapper(key, obj),
     }),
     Object.create(null),

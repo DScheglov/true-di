@@ -66,14 +66,14 @@ describe('UniqueStack', () => {
     stack.push(1);
     const [error] = stack.push(1);
     expect(error).toBeInstanceOf(Error);
-    expect(error.message).toBe('Duplicated item has been pushed to the stack.');
+    expect(error!.message).toBe('Duplicated item has been pushed to the stack.');
   });
 
   it('returns an StackSequenceError on poping from empty stack', () => {
     const stack = UniqueStack<number>();
-    const [error] = stack.pop();
+    const [error] = stack.pop()!;
     expect(error).toBeInstanceOf(Error);
-    expect(error.message).toBe('Trying to extract item from the empty stack');
+    expect(error!.message).toBe('Trying to extract item from the empty stack');
   });
 
   it('returns an StackSequenceError if extracted item is unexpected', () => {
@@ -81,6 +81,6 @@ describe('UniqueStack', () => {
     stack.push(1);
     const [error] = stack.pop(2);
     expect(error).toBeInstanceOf(Error);
-    expect(error.message).toBe('Extracted item is not equal to expected one');
+    expect(error!.message).toBe('Extracted item is not equal to expected one');
   });
 });

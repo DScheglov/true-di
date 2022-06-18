@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
     "sourceMap": false,
     "target": "es6",
     "outDir": "./esm",
@@ -11,7 +14,7 @@
     "module": "ES6",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
     "removeComments": true,
     "declaration": true,
