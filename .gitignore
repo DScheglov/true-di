@@ -21,3 +21,6 @@ esm/
 # IDE settings
 .vscode
 .idea
+
+# Snyk
+.dccache
