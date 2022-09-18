@@ -14,7 +14,7 @@ describe('diContainer', () => {
 
     const container = diContainer<Container>({
       x: () => 42,
-    });
+    })();
 
     expect(container).toBeDefined();
     expect(typeof container).toBe('object');
@@ -33,7 +33,7 @@ describe('diContainer', () => {
       x: () => 1,
       y: ({ x }) => x + 2,
       z: ({ x, y }) => x * y + 3,
-    });
+    })();
 
     expect(container.z).toBe(6);
   });
@@ -47,7 +47,7 @@ describe('diContainer', () => {
     const container = diContainer<Container>({
       x: ({ y }) => y,
       y: ({ x }) => x + 2,
-    });
+    })();
 
     expect(
       () => container.x,
@@ -74,7 +74,7 @@ describe('diContainer', () => {
 
         return () => x;
       },
-    });
+    })();
 
     expect(
       () => container.y,
@@ -88,7 +88,7 @@ describe('diContainer', () => {
 
     const container = diContainer<Container>({
       x: () => 42,
-    });
+    })();
 
     expect(
       () => {
@@ -107,7 +107,7 @@ describe('diContainer', () => {
 
     const container = diContainer<Container>({
       [itemSymbol]: itemFactory,
-    });
+    })();
 
     expect(container[itemSymbol]).toBe(42);
     expect(itemFactory).toHaveBeenCalledTimes(1);
@@ -120,7 +120,7 @@ describe('diContainer', () => {
         (z: number) => (z > 0 ? c.y(-c.x - z) : z),
     };
 
-    const container = diContainer(factories);
+    const container = diContainer(factories)();
 
     expect(container.x).toBe(42);
     expect(container.y(2)).toBe(-44);
@@ -137,7 +137,7 @@ describe('diContainer', () => {
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
-    });
+    })();
 
     const { ...values } = container;
     const values2 = { ...container };
@@ -157,7 +157,7 @@ describe('diContainer', () => {
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
-    });
+    })();
 
     expect(
       () => {
@@ -178,7 +178,7 @@ describe('diContainer', () => {
       x: () => ({ value: 42 }),
       y: ({ x }) => x.value * 2,
       z: ({ x, y }) => x.value + y,
-    });
+    })();
 
     const prevValueX = container.x;
     container.x = null as any;
@@ -197,7 +197,7 @@ describe('diContainer', () => {
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
-    });
+    })();
 
     const descriptor = Object.getOwnPropertyDescriptor(container, 'x')!;
     expect(descriptor.enumerable).toBeTruthy();
@@ -216,7 +216,7 @@ describe('diContainer', () => {
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
-    });
+    })();
 
     const descriptor = Object.getOwnPropertyDescriptor(container, 'xx');
     expect(descriptor).toBeUndefined();
@@ -232,7 +232,7 @@ describe('diContainer', () => {
     const container = diContainer<Container>({
       x: () => 42,
       [y]: ({ x }) => x * 2,
-    });
+    })();
 
     expect(Object.keys(container)).toEqual(['x']);
   });
@@ -247,7 +247,7 @@ describe('diContainer', () => {
     const container = diContainer<Container>({
       x: () => 42,
       [y]: ({ x }) => x * 2,
-    });
+    })();
 
     const descriptor = Object.getOwnPropertyDescriptor(container, y)!;
     expect(descriptor.enumerable).toBeTruthy();
@@ -275,7 +275,7 @@ describe('diContainer', () => {
       childItem: [createNode, (self, { parentItem }) => {
         self.parent = parentItem;
       }],
-    });
+    })();
 
     const child = container.childItem;
     const parent = container.parentItem;
@@ -305,7 +305,7 @@ describe('diContainer', () => {
       parentName: () => 'The Parent',
       parentItem: [createNode, assignProps({ child: 'childItem', name: 'parentName' })],
       childItem: [createNode, assignProps({ parent: 'parentItem', name: 'childName' })],
-    });
+    })();
 
     const child = container.childItem;
     const parent = container.parentItem;
@@ -332,8 +332,8 @@ describe('diContainer', () => {
         x: () => 1,
         y: () => 2,
         z: ({ x, y }) => (x + y) * parent.alpha.length,
-      }),
-    });
+      })(),
+    })();
 
     expect(container.betta.z).toBe(15);
   });
@@ -361,7 +361,7 @@ describe('diContainer', () => {
       ...xFactory,
       ...yFactory,
       ...zFactory,
-    });
+    })();
 
     expect(container.z).toBe(true);
   });
@@ -379,7 +379,7 @@ describe('diContainer', () => {
 
     const container = diContainer({
       x, y, z, t,
-    });
+    })();
 
     expectStrictType<{ x: number, y: string, z: boolean, t: boolean }>(container);
 
@@ -398,7 +398,7 @@ describe('diContainer', () => {
       service2: factory2,
     }, {
       service3: factory3,
-    });
+    })();
 
     expectStrictType<{service3: [number, string] }>(container);
 
@@ -417,7 +417,7 @@ describe('diContainer', () => {
     }, {
       service1: factory1,
       service3: factory3,
-    });
+    })();
 
     expectStrictType<{ service1: number, service3: [number, string] }>(container);
 
@@ -437,7 +437,7 @@ describe('isReady', () => {
       x: () => ({ value: 42 }),
       y: ({ x }) => x.value * 2,
       z: ({ x, y }) => x.value + y,
-    });
+    })();
 
     expect(isReady(container, 'x')).toBeFalsy();
 
@@ -457,7 +457,7 @@ describe('isReady', () => {
       x: () => ({ value: 42 }),
       y: ({ x }) => x.value * 2,
       z: ({ x, y }) => x.value + y,
-    });
+    })();
 
     expect(container.x).toEqual({ value: 42 });
 
@@ -482,7 +482,7 @@ describe('prepareAll', () => {
       x: () => 1,
       y: () => 2,
       z: () => 3,
-    });
+    })();
 
     expect(isReady(container, 'x')).toBeFalsy();
     expect(isReady(container, 'y')).toBeFalsy();
@@ -506,7 +506,7 @@ describe('prepareAll', () => {
       x: () => 1,
       y: () => 2,
       z: () => 3,
-    });
+    })();
 
     expect(
       prepareAll(container),
@@ -524,7 +524,7 @@ describe('prepareAll', () => {
       x: { value: () => 1, enumerable: true },
       y: { value: () => 2, enumerable: true },
       z: { value: () => 3, enumerable: false },
-    }));
+    }))();
 
     prepareAll(container);
 
@@ -546,7 +546,7 @@ describe('releaseAll', () => {
       x: () => 1,
       y: () => 2,
       z: () => 3,
-    });
+    })();
 
     prepareAll(container);
 
@@ -572,7 +572,7 @@ describe('factoriesFrom', () => {
     const container = diContainer<IContainer>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
-    });
+    })();
 
     const factories = factoriesFrom(container);
 
@@ -593,7 +593,7 @@ describe('factoriesFrom', () => {
     const container = diContainer<IContainer>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
-    });
+    })();
 
     factoriesFrom(container);
     expect(isReady(container, 'x')).toBeFalsy();
@@ -612,7 +612,7 @@ describe('factoriesFrom', () => {
       [$field]: ({ x }) => ({ x }),
     };
 
-    const container = diContainer(originalFactories);
+    const container = diContainer(originalFactories)();
 
     const factories = factoriesFrom(container);
 
@@ -639,17 +639,17 @@ describe('factoriesFrom', () => {
     const container1 = diContainer<IContainer1>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
-    });
+    })();
 
     const container2 = diContainer<IContainer2>({
       z: () => 'the time x',
       t: ({ z }) => z.length,
-    });
+    })();
 
     const container = diContainer<IContainer1 & IContainer2>({
       ...factoriesFrom(container1),
       ...factoriesFrom(container2),
-    });
+    })();
 
     expect(container.x).toBe(container1.x);
     expect(container.y).toBe(container1.y);
@@ -673,17 +673,17 @@ describe('factoriesFrom', () => {
     const container1 = diContainer<IContainer1>({
       x: () => 42,
       [$field]: () => ({}),
-    });
+    })();
 
     const container2 = diContainer<IContainer2>({
       z: () => 'the time x',
       t: ({ z }) => z.length,
-    });
+    })();
 
     const container = diContainer({
       ...factoriesFrom(container1),
       ...factoriesFrom(container2),
-    });
+    })();
 
     expectStrictType<{
       z: string;
@@ -713,13 +713,13 @@ describe('factoriesFrom', () => {
     const container1 = diContainer<IContainer1>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
-    });
+    })();
 
     const container = diContainer<IContainer1 & IContainer2>({
       ...factoriesFrom(container1),
       z: ({ x, y }) => `the y is "${y}" and it contains "${x}"`,
       t: ({ z }) => z.length,
-    });
+    })();
 
     expect(container.x).toBe(container1.x);
     expect(container.y).toBe(container1.y);

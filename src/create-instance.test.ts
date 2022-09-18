@@ -16,11 +16,11 @@ describe('getInstance', () => {
     };
 
     const container = Object.freeze({}) as Container;
-    const newVector = createInstance(factories, instances)(container, 'vector');
+    const newVector = createInstance(factories, instances)(container, 'vector', {});
 
     expect(newVector).toEqual({ x: 1, y: 2 });
     expect(instances.get('vector')).toBe(newVector);
-    expect(factories.vector).toHaveBeenCalledWith(container);
+    expect(factories.vector).toHaveBeenCalledWith(container, {});
   });
 
   it('throws an error in case of cyclic dependencies', () => {
@@ -39,7 +39,7 @@ describe('getInstance', () => {
     stack.push('vector');
 
     expect(
-      () => createInstance(factories, instances, stack, initializers)(container, 'vector'),
+      () => createInstance(factories, instances, stack, initializers)(container, 'vector', {}),
     ).toThrow(new Error('Cyclic dependencies couldn\'t be resolved.\n\nRequested: vector\nResolution stack:\n\tvector'));
   });
 
@@ -59,7 +59,7 @@ describe('getInstance', () => {
     const container = Object.freeze({}) as Container;
 
     expect(
-      () => createInstance(factories, instances, stack)(container, 'vector'),
+      () => createInstance(factories, instances, stack)(container, 'vector', {}),
     ).toThrow('Not all dependencies resolved correctly.');
   });
 
@@ -77,7 +77,7 @@ describe('getInstance', () => {
     const initializers: VoidFn[] = [];
 
     expect(
-      () => createInstance(factories, instances, stack, initializers)(container, 'vector2' as 'vector'),
+      () => createInstance(factories, instances, stack, initializers)(container, 'vector2' as 'vector', {}),
     ).toThrow('Factory is not defined for name "vector2"');
   });
 });

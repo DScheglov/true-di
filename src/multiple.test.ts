@@ -7,7 +7,7 @@ describe('multiple', () => {
       datetime: number,
     };
 
-    const factoryTuple = multiple<IContainer, 'datetime'>(
+    const factoryTuple = multiple<IContainer, {}, 'datetime'>(
       () => Date.now(),
     );
 
@@ -24,7 +24,7 @@ describe('multiple', () => {
     let counter = 0;
     const container = diContainer<IContainer>({
       index: multiple(() => ++counter), // eslint-disable-line no-plusplus
-    });
+    })();
 
     expect(container.index).toBeDefined();
     expect(container.index).not.toBe(container.index);
@@ -35,7 +35,7 @@ describe('multiple', () => {
       datetime: number,
     };
 
-    const factoryTuple = multiple<IContainer, 'datetime'>(
+    const factoryTuple = multiple<IContainer, {}, 'datetime'>(
       [() => Date.now(), () => {}],
     );
 
@@ -69,7 +69,7 @@ describe('multiple', () => {
         },
       ]),
       root: ({ node }) => node,
-    });
+    })();
 
     expect(container.root).toEqual({ index: 1, parent: null, children: [] });
 
@@ -101,10 +101,10 @@ describe('multiple', () => {
     };
 
     let counter = 0;
-    const container = diContainer(multiple<IContainer>({
+    const container = diContainer(multiple<IContainer, {}>({
       index: () => ++counter, // eslint-disable-line no-plusplus
       node: ({ index }) => ({ index }),
-    }));
+    }))();
 
     expect(container.node).toEqual({ index: 1 });
     expect(container.node).toEqual({ index: 2 });

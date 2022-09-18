@@ -1,47 +1,54 @@
 import { IFactory, IFactoryTuple, IFactories } from './types';
 import allNames from './utils/all-names';
 
-const cleaner = <C>(instance: any, container: C, name: keyof C) => {
+const cleaner = <C extends {}, P extends {}>(
+  instance: any, container: C, params: P, name: keyof C,
+) => {
   container[name] = null as any;
 };
 
-const decorateFactory = <C, N extends keyof C>(factory: IFactory<C, N>): IFactoryTuple<C, N> => [
-  factory,
-  cleaner,
-];
-
-const decorateTupple = <C, N extends keyof C>(
-  [factory, initilizer]: IFactoryTuple<C, N>,
-): IFactoryTuple<C, N> => [
+const decorateFactory = <C extends {}, P extends {}, N extends keyof C>(
+  factory: IFactory<C, P, N>,
+): IFactoryTuple<C, P, N> => [
     factory,
-    (instance: C[N], container: C, name: N) => {
-      initilizer(instance, container, name);
-      cleaner(instance, container, name);
+    cleaner,
+  ];
+
+const decorateTupple = <C extends {}, P extends {}, N extends keyof C>(
+  [factory, initilizer]: IFactoryTuple<C, P, N>,
+): IFactoryTuple<C, P, N> => [
+    factory,
+    (instance: C[N], container: C, params: P, name: N) => {
+      initilizer(instance, container, params, name);
+      cleaner(instance, container, params, name);
     },
   ];
 
-const decorateItemBinding = <C, N extends keyof C>(
-  itemBinding: IFactory<C, N> | IFactoryTuple<C, N>,
-): IFactoryTuple<C, N> => (
+const decorateItemBinding = <C extends {}, P extends {}, N extends keyof C>(
+  itemBinding: IFactory<C, P, N> | IFactoryTuple<C, P, N>,
+): IFactoryTuple<C, P, N> => (
     typeof itemBinding === 'function'
       ? decorateFactory(itemBinding)
       : decorateTupple(itemBinding)
   );
 
-const decorateFactories = <C extends {}>(factories: IFactories<C>): IFactories<C> =>
-  allNames(factories).reduce(
-    (newObject, name) => Object.defineProperty(newObject, name, {
-      ...Object.getOwnPropertyDescriptor(factories, name),
-      value: decorateItemBinding(factories[name]),
-    }),
-    Object.create(null),
-  );
+const decorateFactories = <C extends {}, P extends {} = {}>(
+  factories: IFactories<C, P>,
+): IFactories<C, P> =>
+    allNames(factories).reduce(
+      (newObject, name) => Object.defineProperty(newObject, name, {
+        ...Object.getOwnPropertyDescriptor(factories, name),
+        value: decorateItemBinding(factories[name]),
+      }),
+      Object.create(null),
+    );
 
 const multiple: {
-  <C, N extends keyof C>(itemBinding: IFactory<C, N> | IFactoryTuple<C, N>): IFactoryTuple<C, N>
-  <C extends {}>(factories: IFactories<C>): IFactories<C>
-} = <C extends {}, N extends keyof C>(
-  bindingOrFactories: IFactory<C, N> | IFactoryTuple<C, N> | IFactories<C>,
+  <C extends {}, P extends {}, N extends keyof C>(
+    itemBinding: IFactory<C, P, N> | IFactoryTuple<C, P, N>): IFactoryTuple<C, P, N>
+  <C extends {}, P extends {}>(factories: IFactories<C, P>): IFactories<C, P>
+} = <C extends {}, P extends {}, N extends keyof C>(
+  bindingOrFactories: IFactory<C, P, N> | IFactoryTuple<C, P, N> | IFactories<C, P>,
 ) => (
     !Array.isArray(bindingOrFactories) && typeof bindingOrFactories === 'object'
       ? decorateFactories(bindingOrFactories)
