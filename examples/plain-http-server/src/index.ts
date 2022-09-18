@@ -6,7 +6,7 @@ import createContainer from './container';
 import { getOrderById, getOrders } from './controller';
 import { handleErrors } from './middlewares';
 
-const handler =  firstOf(
+const handler = firstOf(
   match('/orders', getOrders),
   match('/orders/:id', getOrderById),
 );
@@ -16,4 +16,5 @@ http.createServer(
     createContainer, // create request context
     handler,
     handleErrors,
-  )).listen(8080, () => console.log('Server is ready: http://localhost:8080'));
+  ),
+).listen(8080, () => console.log('Server is ready: http://localhost:8080'));

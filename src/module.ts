@@ -1,10 +1,8 @@
 /* eslint-disable no-use-before-define */
 import diContainer from './di-container';
+import { hasOwn } from './utils/has-own';
 import { IInstanceInitializer } from './types';
 import allNames from './utils/all-names';
-
-const hasOwn: <T>(obj: T, fieldName: PropertyKey) => boolean =
-  Function.prototype.call.bind(Object.prototype.hasOwnProperty);
 
 interface IUnboundFactory<S extends {}, P extends {}, D> {
   (container: S, params: P): D;
@@ -62,14 +60,12 @@ const Module = <
 
   const init = (initializers: IInitializers<S & PS, P>) => {
     allNames(initializers).forEach(name => {
-      const factories =
-        hasOwn(publicFactories, name) ? publicFactories :
-        hasOwn(privateFactories, name) ? privateFactories :
-        null;
+      const [factories, currentValue] =
+        hasOwn(publicFactories, name) ? [publicFactories, publicFactories[name]] :
+        hasOwn(privateFactories, name) ? [privateFactories, privateFactories[name]] :
+        [null, null];
 
       if (factories == null) throw new TypeError(`The item ${String(name)} couldn't be resolved`);
-
-      const currentValue = factories[name as any];
 
       Object.defineProperty(factories, name, {
         value: Array.isArray(currentValue)
