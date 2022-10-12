@@ -1,18 +1,18 @@
-import diContainer, {
+import serviceLocator, {
   factoriesFrom, isReady, prepareAll, releaseAll,
-} from './di-container';
+} from './service-locator';
 import { expectStrictType } from './utils/type-test-utils';
 import { assignProps } from './utils/assign-props';
 import allNames from './utils/all-names';
 import { IFactories } from './types';
 
-describe('diContainer', () => {
+describe('serviceLocator', () => {
   it('creates a container', () => {
-    type Container = {
+    type Services = {
       x: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
     })();
 
@@ -23,13 +23,13 @@ describe('diContainer', () => {
   });
 
   it('allows to resolve dependency in chain', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     }
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 1,
       y: ({ x }) => x + 2,
       z: ({ x, y }) => x * y + 3,
@@ -39,12 +39,12 @@ describe('diContainer', () => {
   });
 
   it('throws an exception in case of cyclic dependency', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
     }
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: ({ y }) => y,
       y: ({ x }) => x + 2,
     })();
@@ -55,12 +55,12 @@ describe('diContainer', () => {
   });
 
   it('throws an exception in case when error during dependency creation is suppressed', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: () => number,
     }
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => {
         throw new Error('Failed to create x');
       },
@@ -82,11 +82,11 @@ describe('diContainer', () => {
   });
 
   it('throws an error in attempt to assign any it\'s value', () => {
-    type Container = {
+    type Services = {
       x: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
     })();
 
@@ -99,13 +99,13 @@ describe('diContainer', () => {
 
   it('works with Symbols', () => {
     const itemSymbol = Symbol('item');
-    type Container = {
+    type Services = {
       [itemSymbol]: number
     };
 
     const itemFactory = jest.fn(() => 42);
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       [itemSymbol]: itemFactory,
     })();
 
@@ -120,20 +120,20 @@ describe('diContainer', () => {
         (z: number) => (z > 0 ? c.y(-c.x - z) : z),
     };
 
-    const container = diContainer(factories)();
+    const container = serviceLocator(factories)();
 
     expect(container.x).toBe(42);
     expect(container.y(2)).toBe(-44);
   });
 
   it('allows to create all entities in single moment', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
@@ -147,13 +147,13 @@ describe('diContainer', () => {
   });
 
   it('don\'t allow to delete items in the container', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
@@ -168,13 +168,13 @@ describe('diContainer', () => {
   });
 
   it('allows to unbind name from it\'s value', () => {
-    type Container = {
+    type Services = {
       x: { value: number },
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => ({ value: 42 }),
       y: ({ x }) => x.value * 2,
       z: ({ x, y }) => x.value + y,
@@ -187,13 +187,13 @@ describe('diContainer', () => {
     expect(container.x).not.toBe(prevValueX);
   });
   it('allows to get ownPropertyDescriptor', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
@@ -206,13 +206,13 @@ describe('diContainer', () => {
   });
 
   it('ownPropertyDescriptor returns undefined if field is not defined', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
       y: ({ x }) => x * 2,
       z: ({ x, y }) => x + y,
@@ -224,12 +224,12 @@ describe('diContainer', () => {
 
   it('it doesn\'t declare symbols as keys', () => {
     const y = Symbol('y');
-    type Container = {
+    type Services = {
       x: number,
       [y]: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
       [y]: ({ x }) => x * 2,
     })();
@@ -239,12 +239,12 @@ describe('diContainer', () => {
 
   it('it allows to get descriptor for Symbolic property', () => {
     const y = Symbol('y');
-    type Container = {
+    type Services = {
       x: number,
       [y]: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 42,
       [y]: ({ x }) => x * 2,
     })();
@@ -261,14 +261,14 @@ describe('diContainer', () => {
       parent: Node | null,
     }
 
-    type Container = {
+    type Services = {
       parentItem: Node,
       childItem: Node,
     }
 
     const createNode = (): Node => ({ child: null, parent: null });
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       parentItem: [createNode, (self, { childItem }) => {
         self.child = childItem;
       }],
@@ -291,7 +291,7 @@ describe('diContainer', () => {
       parent: Node | null,
     }
 
-    type Container = {
+    type Services = {
       childName: string,
       parentName: string,
       parentItem: Node,
@@ -300,7 +300,7 @@ describe('diContainer', () => {
 
     const createNode = (): Node => ({ name: '', child: null, parent: null });
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       childName: () => 'The Child',
       parentName: () => 'The Parent',
       parentItem: [createNode, assignProps({ child: 'childItem', name: 'parentName' })],
@@ -326,9 +326,9 @@ describe('diContainer', () => {
       betta: Nested,
     };
 
-    const container = diContainer<Parent>({
+    const container = serviceLocator<Parent>({
       alpha: () => 'alpha',
-      betta: parent => diContainer<Nested>({
+      betta: parent => serviceLocator<Nested>({
         x: () => 1,
         y: () => 2,
         z: ({ x, y }) => (x + y) * parent.alpha.length,
@@ -339,25 +339,25 @@ describe('diContainer', () => {
   });
 
   it('allows to declare partial factories', () => {
-    type IContainer = {
+    type IServices = {
       x: number,
       y: string,
       z: boolean,
     };
 
-    const xFactory: Pick<IFactories<IContainer>, 'x'> = {
+    const xFactory: Pick<IFactories<IServices>, 'x'> = {
       x: () => 1,
     };
 
-    const yFactory: Pick<IFactories<IContainer>, 'y'> = {
+    const yFactory: Pick<IFactories<IServices>, 'y'> = {
       y: () => 'Y',
     };
 
-    const zFactory: Pick<IFactories<IContainer>, 'z'> = {
+    const zFactory: Pick<IFactories<IServices>, 'z'> = {
       z: ({ x, y }) => y.length === x,
     };
 
-    const container = diContainer<IContainer>({
+    const container = serviceLocator<IServices>({
       ...xFactory,
       ...yFactory,
       ...zFactory,
@@ -377,7 +377,7 @@ describe('diContainer', () => {
     // eslint-disable-next-line no-shadow
     const t = ({ z }: { z: boolean }) => !z;
 
-    const container = diContainer({
+    const container = serviceLocator({
       x, y, z, t,
     })();
 
@@ -393,7 +393,7 @@ describe('diContainer', () => {
       { service1, service2 }: { service1: number, service2: string },
     ): [number, string] => [service1, service2];
 
-    const container = diContainer({
+    const container = serviceLocator({
       service1: factory1,
       service2: factory2,
     }, {
@@ -412,7 +412,7 @@ describe('diContainer', () => {
       { service1, service2 }: { service1: number, service2: string },
     ): [number, string] => [service1, service2];
 
-    const container = diContainer({
+    const container = serviceLocator({
       service2: factory2,
     }, {
       service1: factory1,
@@ -427,13 +427,13 @@ describe('diContainer', () => {
 
 describe('isReady', () => {
   it('allows to identify if some component is ready', () => {
-    type Container = {
+    type Services = {
       x: { value: number },
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => ({ value: 42 }),
       y: ({ x }) => x.value * 2,
       z: ({ x, y }) => x.value + y,
@@ -447,13 +447,13 @@ describe('isReady', () => {
   });
 
   it('allows to identify if some component is not ready', () => {
-    type Container = {
+    type Services = {
       x: { value: number },
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => ({ value: 42 }),
       y: ({ x }) => x.value * 2,
       z: ({ x, y }) => x.value + y,
@@ -472,13 +472,13 @@ describe('isReady', () => {
 
 describe('prepareAll', () => {
   it('allows to create all items in the container', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 1,
       y: () => 2,
       z: () => 3,
@@ -496,13 +496,13 @@ describe('prepareAll', () => {
   });
 
   it('creates the same as spread operator if container doesn\'t have non-enumerable props', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 1,
       y: () => 2,
       z: () => 3,
@@ -514,13 +514,13 @@ describe('prepareAll', () => {
   });
 
   it('creates items also for non-enumerable props', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>(Object.create(null, {
+    const container = serviceLocator<Services>(Object.create(null, {
       x: { value: () => 1, enumerable: true },
       y: { value: () => 2, enumerable: true },
       z: { value: () => 3, enumerable: false },
@@ -536,13 +536,13 @@ describe('prepareAll', () => {
 
 describe('releaseAll', () => {
   it('allows to release all items in the container', () => {
-    type Container = {
+    type Services = {
       x: number,
       y: number,
       z: number,
     };
 
-    const container = diContainer<Container>({
+    const container = serviceLocator<Services>({
       x: () => 1,
       y: () => 2,
       z: () => 3,
@@ -564,12 +564,12 @@ describe('releaseAll', () => {
 
 describe('factoriesFrom', () => {
   it('creates a factories object from container', () => {
-    type IContainer = {
+    type IServices = {
       x: number,
       y: string,
     };
 
-    const container = diContainer<IContainer>({
+    const container = serviceLocator<IServices>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
     })();
@@ -585,12 +585,12 @@ describe('factoriesFrom', () => {
   });
 
   it('doesn\'t affect container items', () => {
-    type IContainer = {
+    type IServices = {
       x: number,
       y: string,
     };
 
-    const container = diContainer<IContainer>({
+    const container = serviceLocator<IServices>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
     })();
@@ -602,17 +602,17 @@ describe('factoriesFrom', () => {
 
   it('creates a factories object from container (with symbolic names)', () => {
     const $field = Symbol('symbolic name');
-    type IContainer = {
+    type IServices = {
       x: number,
       [$field]: object,
     };
 
-    const originalFactories: IFactories<IContainer> = {
+    const originalFactories: IFactories<IServices> = {
       x: () => 42,
       [$field]: ({ x }) => ({ x }),
     };
 
-    const container = diContainer(originalFactories)();
+    const container = serviceLocator(originalFactories)();
 
     const factories = factoriesFrom(container);
 
@@ -626,27 +626,27 @@ describe('factoriesFrom', () => {
   });
 
   it('allows to merge two containers', () => {
-    type IContainer1 = {
+    type IServices1 = {
       x: number,
       y: string,
     };
 
-    type IContainer2 = {
+    type IServices2 = {
       z: string,
       t: number,
     }
 
-    const container1 = diContainer<IContainer1>({
+    const container1 = serviceLocator<IServices1>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
     })();
 
-    const container2 = diContainer<IContainer2>({
+    const container2 = serviceLocator<IServices2>({
       z: () => 'the time x',
       t: ({ z }) => z.length,
     })();
 
-    const container = diContainer<IContainer1 & IContainer2>({
+    const container = serviceLocator<IServices1 & IServices2>({
       ...factoriesFrom(container1),
       ...factoriesFrom(container2),
     })();
@@ -660,27 +660,27 @@ describe('factoriesFrom', () => {
   it('allows to merge two containers (with symbolic names)', () => {
     const $field = Symbol('symbolic name');
 
-    type IContainer1 = {
+    type IServices1 = {
       x: number;
       [$field]: object;
     };
 
-    type IContainer2 = {
+    type IServices2 = {
       z: string;
       t: number;
     }
 
-    const container1 = diContainer<IContainer1>({
+    const container1 = serviceLocator<IServices1>({
       x: () => 42,
       [$field]: () => ({}),
     })();
 
-    const container2 = diContainer<IContainer2>({
+    const container2 = serviceLocator<IServices2>({
       z: () => 'the time x',
       t: ({ z }) => z.length,
     })();
 
-    const container = diContainer({
+    const container = serviceLocator({
       ...factoriesFrom(container1),
       ...factoriesFrom(container2),
     })();
@@ -700,22 +700,22 @@ describe('factoriesFrom', () => {
   });
 
   it('allows to create extending container', () => {
-    type IContainer1 = {
+    type IServices1 = {
       x: number,
       y: string,
     };
 
-    type IContainer2 = {
+    type IServices2 = {
       z: string,
       t: number,
     }
 
-    const container1 = diContainer<IContainer1>({
+    const container1 = serviceLocator<IServices1>({
       x: () => 42,
       y: ({ x }) => `the x is ${x}`,
     })();
 
-    const container = diContainer<IContainer1 & IContainer2>({
+    const container = serviceLocator<IServices1 & IServices2>({
       ...factoriesFrom(container1),
       z: ({ x, y }) => `the y is "${y}" and it contains "${x}"`,
       t: ({ z }) => z.length,

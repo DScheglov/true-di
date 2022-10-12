@@ -1,4 +1,4 @@
-import diContainer from './di-container';
+import diContainer from './service-locator';
 import multiple from './multiple';
 
 describe('multiple', () => {

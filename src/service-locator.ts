@@ -30,7 +30,7 @@ export const factoriesFrom = <C extends {}, N extends keyof C = keyof C>(
 ): IPureFactories<Pick<C, N>> =>
     mapObject<C, N, IPureFactories<Pick<C, N>>>(container, name => () => container[name], names);
 
-const diContainer: {
+const createServiceLocatorFactory: {
   <S extends {}, P extends {} = {}>(factories: IFactories<S, P>): ContainerFactory<S, P>;
   <PS extends {}, S extends {}, P extends {} = {}>(
     privateFactories: Pick<IFactories<PS & S, P>, keyof PS>,
@@ -77,4 +77,4 @@ const diContainer: {
     );
   };
 
-export default diContainer;
+export default createServiceLocatorFactory;

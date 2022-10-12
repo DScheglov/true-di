@@ -11,6 +11,7 @@
   "rules": {
     "class-methods-use-this": "off",
     "no-console": "off",
+    "no-shadow": "off",
     "max-len": [
       "error",
       {

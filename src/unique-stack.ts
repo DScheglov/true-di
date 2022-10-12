@@ -1,45 +1,60 @@
 export type ETuple<E, T> = [E, null] | [null, T];
+type GetKeyFn<T, K> = (item: T) => K;
 
 export type IUniqueStack<T> = {
   push:(value: T) => ETuple<Error, T>,
   pop: (expected?: T) => ETuple<Error, T>,
+  forEach(callback: (value: T) => void): void;
   readonly items: T[],
   readonly size: number,
 };
 
-const _push = <T>(stack: T[], set: Set<T>) => (item: T): ETuple<Error, T> => {
-  if (set.has(item)) return [new Error('Duplicated item has been pushed to the stack.'), null];
-  stack.unshift(item);
-  set.add(item);
-  return [null, item];
-};
+const _push =
+  <T, K>(stack: T[], set: Set<K>, getKey: GetKeyFn<T, K>) =>
+    (item: T): ETuple<Error, T> => {
+      const key = getKey(item);
+      if (set.has(key)) return [new Error('Duplicated item has been pushed to the stack.'), null];
+      stack.unshift(item);
+      set.add(key);
+      return [null, item];
+    };
 
-const _pop = <T>(stack: T[], set: Set<T>) => (expected?: T): ETuple<Error, T> => {
-  if (stack.length === 0) {
-    return [new Error('Trying to extract item from the empty stack'), null];
-  }
+const _pop =
+  <T, K>(stack: T[], set: Set<K>, getKey: GetKeyFn<T, K>) =>
+    (expected?: K): ETuple<Error, T> => {
+      if (stack.length === 0) {
+        return [new Error('Trying to extract item from the empty stack'), null];
+      }
 
-  const last = stack.shift()!;
-  set.delete(last);
+      const last = stack.shift()!;
+      const key = getKey(last);
+      set.delete(key);
 
-  return (
-    expected === undefined || last === expected
-      ? [null, last]
-      : [new Error('Extracted item is not equal to expected one'), null]
-  );
-};
+      return (
+        expected === undefined || key === expected
+          ? [null, last]
+          : [new Error('Extracted item is not equal to expected one'), null]
+      );
+    };
 
-const UniqueStackApi = <T>(stack: T[], set: Set<T>): IUniqueStack<T> => ({
-  push: _push(stack, set),
-  pop: _pop(stack, set),
-  get size(): number {
-    return stack.length;
-  },
-  get items(): T[] {
-    return stack.slice();
-  },
-});
+const _forEach = <T>(stack: T[]) => (cb: (value: T) => void) => stack.forEach(cb);
 
-const UniqueStack = <T>() => UniqueStackApi<T>([], new Set());
+const UniqueStackApi =
+  <T, K>(stack: T[], set: Set<any>, getKey: GetKeyFn<T, K>): IUniqueStack<T> => ({
+    push: _push(stack, set, getKey),
+    pop: _pop(stack, set, getKey),
+    forEach: _forEach(stack),
+    get size(): number {
+      return stack.length;
+    },
+    get items(): T[] {
+      return stack.slice();
+    },
+  });
+
+const idX = <T>(item: T) => item;
+
+const UniqueStack = <T, K = T>(getKey: GetKeyFn<T, K> = idX as any) =>
+  UniqueStackApi<T, K>([], new Set(), getKey);
 
 export default UniqueStack;
