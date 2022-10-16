@@ -1,49 +1,61 @@
-import { DepsOf, Run } from '../../../src/bind-with-run-in-context';
-import Module from '../../../src/module';
-import { multiple } from '../../../src';
+import Module from '../../../src/v5/module';
+import createSessionScope from '../../../src/v5/session-scope';
+import { transient } from '../../../src/v5/transient-scope';
 import DataSourceService from './DataSourceService';
-import ECommerceService from './ECommerceService';
-import { IGetOrders, IInfoLogger } from './interfaces';
+import ECommerceSerive from './ECommerceService';
+import { IInfoLogger } from './interfaces';
 import Logger from './Logger';
 
-type WelcomeDeps = {
-  logger: IInfoLogger;
-  reader: () => string;
-}
-const welcome = () => ({ logger }: WelcomeDeps) => logger.info('Welcome');
+const { sessionScope } = createSessionScope(
+  (_, { sessionId }: { sessionId: string}) => sessionId,
+  0.1,
+  (cb: () => void) => setTimeout(cb, 50),
+);
 
-type GetOrdersDeps = {
-  ecommerceService: IGetOrders
-}
+const greeting = (
+  { logger }: { logger: IInfoLogger },
+  { name }: { name: string },
+) => () => {
+  const message = `Hello, ${name}!!`;
+  logger.info('Say Hi has been created!');
+  return message;
+};
 
-const getOrders = () =>
-  ({ ecommerceService }: GetOrdersDeps, run: Run<DepsOf<typeof welcome>>) => {
-    run(welcome());
-    return ecommerceService.getOrders();
-  };
-
-export const { create } = Module()
+const mdl = Module()
   .private({
-    logger: multiple(() => new Logger()),
-    reader: () => () => 'Hello!!',
+    logger: () => new Logger(),
   })
   .private({
-    dataSourceService: ({ logger }) => new DataSourceService(logger),
+    sayHi: transient(greeting),
   })
   .private({
-    ecommerceService: ({ logger, dataSourceService }) =>
-      new ECommerceService(logger, dataSourceService),
+    data: ({ logger }) => new DataSourceService(logger),
+  })
+  .private({
+    session: sessionScope((i_, e_, { id, close }) => ({ id, close })),
+  })
+  .private({
+    ecom: ({ logger, data }) => new ECommerceSerive(logger, data),
+  })
+  .init({
+    logger(instance, { session }) {
+      instance.info(session.id);
+    },
   })
   .useCases({
-    welcome,
-    getOrders,
-  });
+    hiAndGetOrders: (message: string) => services => {
+      services.logger.info(message);
+      return services.ecom.getOrders();
+    },
+  })
+  .singleton();
 
 async function main() {
-  const { getOrders, welcome } = create();
-  console.log('Module has been created');
-  welcome();
-  console.log(await getOrders());
+  const commerce = mdl.create({ name: 'Dima', sessionId: '1' });
+
+  console.log(
+    await commerce.hiAndGetOrders('Getting Orders'),
+  );
 }
 
 main();

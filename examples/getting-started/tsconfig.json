@@ -3,9 +3,11 @@
     "./src/*",
   ],
   "compilerOptions": {
+    "target": "ES2020",
     "lib": [
       "esnext"
     ],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "Node"
   }
 }

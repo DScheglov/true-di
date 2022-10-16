@@ -1,13 +1,14 @@
-import { AnyModule, Resolver } from './types';
-import { withLifeCycle } from './withLifeCycle';
+import { decorated } from './decorated';
+import { MODULE } from './life-cycle';
+import { Resolver } from './types';
 
-export const moduleScopeMemo = <IntD extends AnyModule, ExtD extends AnyModule, T>(
-  resolver: Resolver<IntD, ExtD, T>,
-  initial?: [IntD, T],
-): Resolver<IntD, ExtD, T> => {
-  const cache = new WeakMap<IntD, T>(initial != null ? [initial] : []);
+export const moduleScopeMemo = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
+  resolver: Resolver<PrM, PbM, ExtD, T>,
+  initial?: [PrM & PbM, T],
+): Resolver<PrM, PbM, ExtD, T> => {
+  const cache = new WeakMap<PrM, T>(initial != null ? [initial] : []);
 
-  return (internal: IntD, external: ExtD) => {
+  return (internal: PrM & PbM, external: ExtD) => {
     if (cache.has(internal)) return cache.get(internal)!;
     const instance = resolver(internal, external);
     cache.set(internal, instance);
@@ -15,7 +16,14 @@ export const moduleScopeMemo = <IntD extends AnyModule, ExtD extends AnyModule, 
   };
 };
 
-export const moduleScope = <IntD extends AnyModule, ExtD extends AnyModule, T>(
-  resolver: Resolver<IntD, ExtD, T>,
-  initial?: [IntD, T],
-) => withLifeCycle(moduleScopeMemo(resolver, initial), 'module');
+export const moduleScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
+  resolver: Resolver<PrM, PbM, ExtD, T>,
+  initial?: [PrM & PbM, T],
+  force: boolean = true,
+): Resolver<PrM, PbM, ExtD, T> => decorated(
+    moduleScopeMemo(resolver, initial),
+    resolver,
+    'moduleScope',
+    MODULE,
+    force,
+  );

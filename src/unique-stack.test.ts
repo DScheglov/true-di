@@ -8,7 +8,7 @@ describe('UniqueStack', () => {
     type Expected = {
       push:(value: string) => [Error, null] | [null, string],
       pop: (expected?: string) => [Error, null] | [null, string],
-      forEach: (cb: (value: string) => void) => void,
+      prev: () => string | null,
       readonly size: number,
       readonly items: string[],
     };

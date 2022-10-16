@@ -1,5 +1,6 @@
-import { AnyModule, Resolver } from './types';
-import { withLifeCycle } from './withLifeCycle';
+import { decorated } from './decorated';
+import { ASYNC } from './life-cycle';
+import { Resolver } from './types';
 
 export interface ContextProvider<T> {
   run(context: T, callback: () => any): void;
@@ -7,7 +8,7 @@ export interface ContextProvider<T> {
 }
 
 let _contextProvider: ContextProvider<WeakMap<any, any>> =
-  typeof window === 'undefined'
+  (global as any).window !== global
     ? require('./als-context-provider').default
     : require('./sync-context-provider').default;
 
@@ -21,22 +22,28 @@ const contextProvider = (): ContextProvider<WeakMap<any, any>> => _contextProvid
 
 export const run = (cb: () => void) => contextProvider().run(new WeakMap(), cb);
 
-export const asyncScope = <IntD extends AnyModule, ExtD extends AnyModule, T>(
-  resolver: Resolver<IntD, ExtD, T>,
+export const asyncScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
+  resolver: Resolver<PrM, PbM, ExtD, T>,
   initial?: [any, T],
-) => {
-  if (initial) contextProvider().get().set(resolver, initial[0]);
+  force: boolean = true,
+): Resolver<PrM, PbM, ExtD, T> => {
+  if (initial) contextProvider().get().set(resolver, initial[1]);
 
-  return withLifeCycle((internal: IntD, external: ExtD): T => {
-    const cache = contextProvider().get();
-    const result = cache.get(resolver);
+  return decorated(
+    (internal: PrM & PbM, external: ExtD): T => {
+      const cache = contextProvider().get();
 
-    if (result != null) return result.instance;
+      if (cache.has(resolver)) return cache.get(resolver);
 
-    const instance = resolver(internal, external);
+      const instance = resolver(internal, external);
 
-    cache.set(resolver, { instance });
+      cache.set(resolver, instance);
 
-    return instance;
-  }, 'async');
+      return instance;
+    },
+    resolver,
+    'asyncScope',
+    ASYNC,
+    force,
+  );
 };

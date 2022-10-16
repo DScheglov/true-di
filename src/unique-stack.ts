@@ -4,7 +4,7 @@ type GetKeyFn<T, K> = (item: T) => K;
 export type IUniqueStack<T> = {
   push:(value: T) => ETuple<Error, T>,
   pop: (expected?: T) => ETuple<Error, T>,
-  forEach(callback: (value: T) => void): void;
+  prev: () => T | null;
   readonly items: T[],
   readonly size: number,
 };
@@ -37,13 +37,13 @@ const _pop =
       );
     };
 
-const _forEach = <T>(stack: T[]) => (cb: (value: T) => void) => stack.forEach(cb);
+const _prev = <T>(stack: T[]) => () => (stack.length > 1 ? stack[1] : null);
 
 const UniqueStackApi =
   <T, K>(stack: T[], set: Set<any>, getKey: GetKeyFn<T, K>): IUniqueStack<T> => ({
     push: _push(stack, set, getKey),
     pop: _pop(stack, set, getKey),
-    forEach: _forEach(stack),
+    prev: _prev(stack),
     get size(): number {
       return stack.length;
     },

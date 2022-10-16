@@ -2,20 +2,21 @@ import allNames from '../utils/all-names';
 import narrowObject from '../utils/narrow-object';
 import { shallowMerge } from '../utils/shallow-merge';
 import { createInstanceFactory } from './create-instance';
-import { AnyModule, Resolvers } from './types';
+import { Initializers, Resolvers } from './types';
 
 const createContainerFactory = <
-  PrM extends AnyModule,
-  PbM extends AnyModule,
-  Ext extends {} = {}
+  PrM extends {},
+  PbM extends {},
+  Ext extends {}
 >(
-    privateResolvers: Resolvers<PrM, PrM & PbM, Ext>,
-    publicResolvers: Resolvers<PbM, PrM & PbM, Ext>,
+    privateResolvers: Resolvers<PrM, PrM, PbM, Ext>,
+    publicResolvers: Resolvers<PbM, PrM, PbM, Ext>,
+    initializers?: Initializers<PrM & PbM, Ext>,
   ) => (externalDependencies: Ext): PbM => {
-    const resolvers =
-      shallowMerge(privateResolvers, publicResolvers) as Resolvers<PrM & PbM, PrM & PbM, Ext>;
+    const resolvers: Resolvers<PrM & PbM, PrM, PbM, Ext> =
+      shallowMerge(privateResolvers, publicResolvers) as any;
 
-    const createInstance = createInstanceFactory(resolvers);
+    const createInstance = createInstanceFactory(resolvers, initializers ?? {});
 
     const moduleContainer: PbM & PrM = allNames(resolvers).reduce(
       (containerObj, name) =>
