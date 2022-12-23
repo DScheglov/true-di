@@ -1,0 +1,58 @@
+[
+  {
+    "id": "a25a3ed9-20b1-4629-8058-71b5c99d2250",
+    "title": "Criollo Chocolate",
+    "description": "+/- 88 iconic Neuhaus chocolates; a selection of fresh cream, praliné, ganache and gianduja filled pralines",
+    "unitPrice": { "amount": 3495, "currency": 840 },
+    "isFeatured": true
+  },
+  {
+    "id": "e562402a-4b0a-4d15-b163-90c0c752dbdb",
+    "title": "Gruyère",
+    "description": "The hard Swiss cheese that originated in the cantons of Fribourg, Vaud, Neuchâtel, Jura, and Berne in Switzerland.",
+    "unitPrice": { "amount": 4850, "currency": 840 },
+    "isFeatured": true
+  },
+  {
+    "id": "ca005f59-833e-4101-98a0-2c5ba47328a2",
+    "title": "White Asparagus",
+    "description": "Asparagus are the vegetable obtained from one species within the genus Asparagus, specifically the young shoots of Asparagus officinalis.",
+    "unitPrice": { "amount": 3980, "currency": 840 },
+    "isFeatured": true
+  },
+  {
+    "id": "1bbe0b27-5df7-4a30-86cd-3a99df91c31e",
+    "title": "Anchovies",
+    "description": "A classic and delicious combination is bread, butter and anchovies.",
+    "unitPrice": { "amount": 1875, "currency": 840 },
+    "isFeatured": true
+  },
+  {
+    "id": "3d4c3e25-165d-490f-8be8-2144d6bd2aa1",
+    "title": "Arborio Rice",
+    "description": "Arborio rice is an Italian short-grain rice. It is named after the town of Arborio, in the Po Valley, which is situated in the region of Piedmont in Italy.",
+    "unitPrice": { "amount": 1875, "currency": 840 },
+    "isFeatured": true
+  },
+  {
+    "id": "5e4125a8-9cee-479d-a7ac-25ebdfe836db",
+    "title": "Eggs",
+    "description": "Chicken Eggs",
+    "unitPrice": { "amount": 399, "currency": 840 },
+    "isFeatured": false
+  },
+  {
+    "id": "8c00740f-c513-408d-9b4d-dc85ed96b6d0",
+    "title": "Snack Cakes",
+    "description": "For example, the likes of Debbie, Reese’s, Hostess.",
+    "unitPrice": { "amount": 1199, "currency": 840 },
+    "isFeatured": false
+  },
+  {
+    "id": "6f93410d-dc8e-4df1-b378-92e34bd11293",
+    "title": "Bananas",
+    "description": "Chiquita",
+    "unitPrice": { "amount": 199, "currency": 840 },
+    "isFeatured": false
+  }
+]
