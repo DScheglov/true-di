@@ -1,8 +1,3 @@
-import diContainer from './service-locator';
-import multiple from './multiple';
+import Module from './module';
 
-export * from './types';
-export * from './service-locator';
-export { multiple };
-
-export default diContainer;
+export default Module;

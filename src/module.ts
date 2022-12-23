@@ -1,176 +1,136 @@
-import createServiceLocatorFactory from './service-locator';
-import { hasOwn } from './utils/has-own';
-import { compose2 } from './utils/compose2';
-import { memoize } from './utils/memoize';
+/* eslint-disable no-use-before-define */
 import allNames from './utils/all-names';
+import { compose2 } from './utils/compose2';
+import { descriptor } from './utils/descriptor';
+import mapObject from './utils/map-object';
+import { memoize } from './utils/memoize';
 import { shallowMerge } from './utils/shallow-merge';
-import { AnyThunks, bindWithRun, BoundThunks } from './bind-with-run-in-context';
+import { readers } from './bind-with-module';
+import createContainerFactory from './container-factory';
+import { mergeResolvers } from './merge';
+import { ModuleBuilder, ProtoModule } from './module-types';
+import { Initializers, Resolvers } from './types';
 
-export type IResolver<S extends {}, P extends {}, D> = (container: S, params: P) => D;
-export type IInitializer<S extends {}, P extends {}, N extends keyof S> = (
-  instance: S[N],
-  container: S,
-  params: P,
-  name: N,
-) => void;
+const $proto = Symbol.for('true-di/module-proto');
 
-export type IResolutionTuple<T extends {}, S extends {}, P extends {}, N extends keyof T> = [
-  IResolver<S, P, T[N]>,
-  IInitializer<S & T, P, N>,
-]
+const addPrivateResolvers = (proto: any) => (decoratorOrItems: any, items: any) => builderApi({
+  ...proto,
+  privateResolvers: mergeResolvers(
+    proto.privateResolvers,
+    typeof decoratorOrItems === 'function'
+      ? mapObject(items, name => decoratorOrItems(items[name]))
+      : decoratorOrItems,
+  ),
+});
 
-type IResolvers<T extends {}, S extends {}, P extends {}> = {
-  [token in keyof T]: IResolver<S, P, T[token]> | IResolutionTuple<T, S, P, token>
-}
+const addPublicResolvers = (proto: any) => (decoratorOrItems: any, items: any) => builderApi({
+  ...proto,
+  publicResolvers: mergeResolvers(
+    proto.publicResolvers,
+    typeof decoratorOrItems === 'function'
+      ? mapObject(items, name => decoratorOrItems(items[name]))
+      : decoratorOrItems,
+  ),
+});
 
-type IInitializers<S extends {}, P extends {}> = Partial<{
-  [token in keyof S]: IInitializer<S, P, token>
-}>
+const creatable = ({
+  privateResolvers, publicResolvers, initializers, selector, memoizer,
+}: any) => {
+  // Guards
+  const publicNames = allNames(publicResolvers);
+  if (selector == null && publicNames.length === 0) return null;
+  const privateNames = allNames(privateResolvers);
+  if (selector != null && publicNames.length === 0 && privateNames.length === 0) return null;
 
-type ObjectOmitFieldsOf<omit extends {}> = {
-  [key in Exclude<string | symbol, keyof omit>]: any
-}
+  const mergedConatiner = () => createContainerFactory(
+    {} as any,
+    shallowMerge(privateResolvers, publicResolvers) as any,
+    initializers as any,
+  );
+  const createContainer =
+    selector != null
+      ? compose2(selector, mergedConatiner())
+      : createContainerFactory(privateResolvers, publicResolvers, initializers);
 
-export type ICreatable<S, P> =
-  [keyof P] extends [never]
-    ? { create(): S }
-    : { create(params: P): S; }
+  return {
+    create: descriptor(memoizer != null ? memoizer(createContainer) : createContainer, true),
+  };
+};
 
-export type IManagableCreate<S, P> = ICreatable<S, P> & {
-  singleton(): ICreatable<S, P>;
-} & (
-  [keyof P] extends [never] ? {} : {
-    memo(getKey: (params: P) => any): ICreatable<S, P>;
-  }
-)
-
-export type IExposible<S extends {}, P extends {}> = {
-  expose<T>(factory: IResolver<S, P, T>): IManagableCreate<T, P>;
-  useCases<Thunks extends AnyThunks<S>>(
-    thunks: Thunks
-  ): IManagableCreate<BoundThunks<Thunks>, P>;
-}
-
-type IModuleBuilder<S extends {}, PS extends {}, P extends {}, Init extends boolean = true> = {
-  public<Items extends ObjectOmitFieldsOf<S & PS>, PP extends {}>(
-    items: IResolvers<Items, S & PS, PP>,
-  ): IModuleBuilder<S & Items, PS, P & PP, Init>;
-  private<Items extends ObjectOmitFieldsOf<S & PS>, PP extends {}>(
-    items: IResolvers<Items, S & PS, PP>,
-  ): IModuleBuilder<S, PS & Items, P & PP, Init>;
-
-} & (
-  IExposible<S & PS, P>
-) & (
-  IManagableCreate<S, P>
-) & (
-  Init extends true
-    ? { init(initializers: IInitializers<S & PS, P>): IModuleBuilder<S, PS, P, false> }
-    : {}
+const memo = (proto: any) => (getMemoKey: any) => Object.create(
+  Object.create({ [$proto]: proto }),
+  creatable({ ...proto, memoizer: memoize(getMemoKey) as any }) ?? {},
 );
 
-const Module = <
-  S extends {} = {},
-  PS extends {} = {},
-  P extends {} = {},
-  Init extends boolean = true
->() => {
-  let selector: any = null;
-  let memoizer: any = <T>(value: T) => value;
-  const publicResolvers = {} as S;
-  const privateResolvers = {} as PS;
+const singleton = (proto: any) => {
+  const addMemoizer = memo(proto);
+  return () => addMemoizer(() => 0);
+};
 
-  const builder: IModuleBuilder<S, PS, P> = {} as any;
+const managebleCreate = (proto: any) => ({
+  memo: descriptor(memo(proto), true),
+  singleton: descriptor(singleton(proto), true),
+  ...creatable(proto),
+});
 
-  const addPublicResolvers = <Items extends ObjectOmitFieldsOf<S & PS>, PP extends {}>(
-    resolvers: IResolvers<Items, S & PS, PP>,
-  ): IModuleBuilder<S & Items, PS, P & PP, Init> => {
-    Object.defineProperties(publicResolvers, Object.getOwnPropertyDescriptors(resolvers));
-    return builder as any;
+const expose = (proto: any) => (selector: any) => Object.create(
+  Object.create({ [$proto]: proto }),
+  managebleCreate({ ...proto, selector }),
+);
+
+const useCases = (proto: any) => {
+  const doExpose = expose(proto);
+  return (thunks: any) => doExpose(readers(thunks));
+};
+
+const exposible = (proto: any) => ({
+  expose: descriptor(expose(proto), true),
+  useCases: descriptor(useCases(proto), true),
+});
+
+const init = (proto: any) => (initializers: any) => {
+  const newProto = {
+    ...proto,
+    initializers: shallowMerge(proto.initializers, initializers),
   };
 
-  const addPrivateResolvers = <Items extends ObjectOmitFieldsOf<S & PS>, PP extends {}>(
-    resolvers: IResolvers<Items, S & PS, PP>,
-  ): IModuleBuilder<S, PS & Items, P & PP, Init> => {
-    Object.defineProperties(privateResolvers, Object.getOwnPropertyDescriptors(resolvers));
-    return builder as any;
-  };
+  return Object.create(Object.create({ [$proto]: newProto }), {
+    ...managebleCreate(newProto),
+    ...exposible(newProto),
+  });
+};
 
-  const init = (initializers: IInitializers<S & PS, P>) => {
-    allNames(initializers).forEach(name => {
-      const [resolvers, currentValue] =
-        hasOwn(publicResolvers, name) ? [publicResolvers, publicResolvers[name]] :
-        hasOwn(privateResolvers, name) ? [privateResolvers, privateResolvers[name]] :
-        [null, null];
-
-      if (resolvers == null) throw new TypeError(`Token "${String(name)}" couldn't be resolved`);
-
-      Object.defineProperty(resolvers, name, {
-        value: Array.isArray(currentValue)
-          ? [currentValue[0], <N extends keyof S>(
-            instance: (S & PS)[N],
-            container: S & PS,
-            params: P,
-            token: N,
-          ) => {
-            initializers[name]!(instance as any, container, params, token as any);
-            currentValue[1](instance, container, params, token);
-          }]
-          : [currentValue, initializers[name]]
-        ,
-      });
+export const builderApi = <PrM extends {}, PbM extends {}, ExtD extends {}>(
+  proto: ProtoModule<PrM, PbM, ExtD>,
+): ModuleBuilder<PrM, PbM, ExtD> =>
+    Object.create(Object.create({ [$proto]: proto }), {
+      private: descriptor(addPrivateResolvers(proto), true),
+      public: descriptor(addPublicResolvers(proto), true),
+      init: descriptor(init(proto), true),
+      ...managebleCreate(proto),
+      ...exposible(proto),
     });
 
-    delete (builder as any).init;
-    return builder;
-  };
-
-  const createLocatorFactory = () =>
-    (selector == null
-      ? createServiceLocatorFactory(privateResolvers, publicResolvers)
-      : compose2(selector, createServiceLocatorFactory(
-        shallowMerge(publicResolvers, privateResolvers) as any,
-      )));
-
-  const create = () => memoizer(createLocatorFactory());
-
-  const Create = Object.defineProperties(Object.create(null), {
-    create: {
-      get: create,
-    },
-    memo: {
-      get: () => memo, // eslint-disable-line no-use-before-define
-    },
-    singleton: {
-      get: () => singleton, // eslint-disable-line no-use-before-define
-    },
+const Module = <PrM extends {} = {}, PbM extends {} = {}, ExtD extends {} = {}>(
+  privateResolvers: Resolvers<PrM, PrM, PbM, ExtD> = {} as any,
+  publicResolvers: Resolvers<PbM, PrM, PbM, ExtD> = {} as any,
+  initializers: Initializers<PrM & PbM, ExtD> = {},
+) => builderApi({
+    privateResolvers,
+    publicResolvers,
+    initializers,
+    selector: null,
+    memoizer: null,
   });
 
-  const expose = <T>(factory: IResolver<S & PS, P, T>) => {
-    selector = factory;
-    return Create;
-  };
+const from = (module: any) => builderApi({
+  privateResolvers: shallowMerge(module[$proto].privateResolvers),
+  publicResolvers: shallowMerge(module[$proto].publicResolvers),
+  initializers: shallowMerge(module[$proto].initializers),
+  selector: null,
+  memoizer: null,
+});
 
-  const memo = (getKey: (params: P) => any) => {
-    memoizer = memoize(getKey);
-    return { create: create() };
-  };
-
-  const useCases = <Thunks extends AnyThunks<S & PS>>(
-    thunks: Thunks,
-  ) => expose(bindWithRun(thunks));
-
-  const singleton = () => memo(() => 0);
-
-  Object.defineProperties(builder, Object.getOwnPropertyDescriptors(Create));
-
-  (builder as any).public = addPublicResolvers;
-  (builder as any).private = addPrivateResolvers;
-  (builder as any).init = init;
-  (builder as any).expose = expose;
-  (builder as any).useCases = useCases;
-
-  return builder;
-};
+Module.from = from;
 
 export default Module;

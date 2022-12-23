@@ -1,6 +1,6 @@
-import allNames from '../utils/all-names';
-import narrowObject from '../utils/narrow-object';
-import { shallowMerge } from '../utils/shallow-merge';
+import allNames from './utils/all-names';
+import narrowObject from './utils/narrow-object';
+import { shallowMerge } from './utils/shallow-merge';
 import { createInstanceFactory } from './create-instance';
 import { Initializers, Resolvers } from './types';
 

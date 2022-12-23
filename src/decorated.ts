@@ -1,4 +1,4 @@
-import { descriptor } from '../utils/descriptor';
+import { descriptor } from './utils/descriptor';
 import { LifeCycle, Resolver } from './types';
 
 export const decorated = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(

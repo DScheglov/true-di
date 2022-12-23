@@ -1,4 +1,4 @@
-import { shallowMerge } from '../utils/shallow-merge';
+import { shallowMerge } from './utils/shallow-merge';
 import { Resolvers, Resolver } from './types';
 
 export const mergeResolvers = <

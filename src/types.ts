@@ -1,26 +1,54 @@
-export type IInstanceInitializer<S extends {}, P extends {}, N extends keyof S> = (
-  instance: S[N],
-  container: S,
-  params: P,
-  name: N,
-) => void;
+import { LifeCycle } from './life-cycle';
 
-export type VoidFn = () => void;
+export type { LifeCycle };
 
-export type IFactory <S extends {}, P extends {}, N extends keyof S> =
-  (container: S, params: P) => S[N]
-
-export type IFactoryTuple<S extends {}, P extends {}, N extends keyof S> =
-  [IFactory<S, P, N>, IInstanceInitializer<S, P, N>];
-
-export type IFactories<S extends object, P extends {} = {}> = {
-  [name in keyof S]:
-    IFactory<S, P, name> | IFactoryTuple<S, P, name>
+export type Resolver <PrM extends {}, PbM extends {}, ExtD extends {}, T> = {
+  (internal: PrM & PbM, extenal: ExtD): T;
+  lifeCycle?: LifeCycle;
+  original?: (internal: PrM & PbM, extenal: ExtD) => T;
+  force?: boolean;
 }
 
-export type IPureFactories<C> = {
-  [name in keyof C]: () => C[name]
+export type Resolvers<
+  M extends {},
+  PrM extends {},
+  PbM extends {},
+  ExtD extends {}
+> = {
+  [token in keyof M]: Resolver<PrM, PbM, ExtD, M[token]>;
+};
+
+export type Initializer<
+  IntD extends {},
+  ExtD extends {},
+  T extends keyof IntD,
+> = {
+  (instance: IntD[T], internalDeps: IntD, externalDeps: ExtD, token: T): void;
 }
 
-export type ContainerFactory<S extends {}, P extends {}> =
-  [keyof P] extends [never] ? () => S : (params: P) => S;
+export type Initializers<
+  IntD extends {}, // eslint-disable-line no-use-before-define
+  ExtD extends {},
+> = Partial<{
+  [token in keyof IntD]: Initializer<IntD, ExtD, token>;
+}>;
+
+export type ExtendedResolver <
+  PrM extends {},
+  PbM extends {},
+  ExtD extends {},
+  T,
+  Extra extends any[] = []
+> = {
+  (internal: PrM & PbM, extenal: ExtD, ...extra: Extra): T;
+}
+export type ScopeDecorator<
+  PrM extends {},
+  PbM extends {},
+  ExtD extends {},
+  T,
+  Params extends {} = {},
+  Extra extends any[] = [],
+> ={
+  (resolver: ExtendedResolver<PrM, PbM, ExtD, T, Extra>): Resolver<PrM, PbM, ExtD & Params, T>
+}

@@ -1,6 +1,9 @@
 /* eslint-disable no-use-before-define */
-import { AnyThunks, BoundThunks } from './thunks-types';
-import { Initializers, Resolver, Resolvers } from './types';
+import { AnyReaders, BoundReaders } from './reader-types';
+import {
+  ExtendedResolver,
+  Initializers, Resolver, Resolvers, ScopeDecorator,
+} from './types';
 
 export type ExcludeKeys<T extends {}> = Exclude<string | symbol, keyof T>;
 
@@ -19,6 +22,17 @@ export type ItemResolver<
   T
 > = {
     [key in Token]: Resolver<PrM, PbM, Params, T>;
+  };
+
+export type ExtItemResolver<
+  PrM extends {},
+  PbM extends {},
+  Token extends ExcludeKeys<PbM & PrM>,
+  Params extends {},
+  T,
+  Extra extends any[] = []
+> = {
+    [key in Token]: ExtendedResolver<PrM, PbM, Params, T, Extra>;
   };
 
 export type ProtoModule<PrM extends {}, PbM extends {}, ExtD extends {}> = {
@@ -55,19 +69,41 @@ export type ManagebleCreate<
 
 export type Exposible<PrM extends {}, PbM extends {}, ExtD extends {}> = {
   expose<T>(selector: ExpositionSelector<PrM & PbM, T>): ManagebleCreate<T, ExtD, false>;
-  useCases<Thunks extends AnyThunks<PrM & PbM>>(
+  useCases<Thunks extends AnyReaders<PrM & PbM>>(
     thunks: Thunks
-  ): ManagebleCreate<BoundThunks<Thunks>, ExtD>;
+  ): ManagebleCreate<BoundReaders<Thunks>, ExtD>;
 };
 
 export type Extendable<PrM extends {}, PbM extends {}, ExtD extends {}> = {
-  private: <Token extends ExcludeKeys<PbM & PrM>, Params extends {}, T>(
+  private<Token extends ExcludeKeys<PbM & PrM>, Params extends {}, T>(
     items: ItemResolver<PrM, PbM, Token, Params, T>
-  ) => ModuleBuilder<PrM & { [key in Token]: T }, PbM, Params & ExtD>;
+  ): ModuleBuilder<PrM & { [key in Token]: T }, PbM, Params & ExtD>;
 
-  public: <Token extends ExcludeKeys<PbM & PrM>, Params extends {}, T>(
+  private<
+    Token extends ExcludeKeys<PbM & PrM>,
+    Params extends {},
+    T,
+    DP extends {} = {},
+    Extra extends any[] = []
+  >(
+    scopeDecorator: ScopeDecorator<PrM, PbM, ExtD, T, DP, Extra>,
+    items: ExtItemResolver<PrM, PbM, Token, Params, T, Extra>
+  ): ModuleBuilder<PrM & { [key in Token]: T }, PbM, Params & ExtD & DP>;
+
+  public<Token extends ExcludeKeys<PbM & PrM>, Params extends {}, T>(
     items: ItemResolver<PrM, PbM, Token, Params, T>
-  ) => ModuleBuilder<PrM, PbM & { [key in Token]: T }, Params & ExtD>;
+  ): ModuleBuilder<PrM, PbM & { [key in Token]: T }, Params & ExtD>;
+
+  public<
+    Token extends ExcludeKeys<PbM & PrM>,
+    Params extends {},
+    T,
+    DP extends {} = {},
+    Extra extends any[] = []
+  >(
+    scopeDecorator: ScopeDecorator<PrM, PbM, ExtD, T, DP, Extra>,
+    items: ExtItemResolver<PrM, PbM, Token, Params, T, Extra>
+  ): ModuleBuilder<PrM, PbM & { [key in Token]: T }, Params & ExtD & DP>;
 };
 
 export type Initable<PrM extends {}, PbM extends {}, ExtD extends {}> = {
