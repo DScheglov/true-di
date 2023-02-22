@@ -8,7 +8,8 @@ import PRODUCTS_JSON from './products.json';
 
 const main = Module()
   .private({
-    productRepo: () => new ProductRepo(PRODUCTS_JSON as Product[]),
+    productRepo: () =>
+      new ProductRepo(PRODUCTS_JSON as Product[]),
   })
   .public({
     userService: (_, { token }: { token: string | null }) =>

@@ -143,9 +143,9 @@ describe('createContainer', () => {
 
     const container1 = createContainer({ sessionId: '1' });
     const container2 = createContainer({ sessionId: '1' });
-    const conatiner3 = createContainer({ sessionId: '2' });
+    const container3 = createContainer({ sessionId: '2' });
 
     expect(container1.session).toBe(container2.session);
-    expect(container1.session).not.toBe(conatiner3.session);
+    expect(container1.session).not.toBe(container3.session);
   });
 });

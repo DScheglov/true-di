@@ -47,3 +47,5 @@ export const asyncScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
     force,
   );
 };
+
+asyncScope.run = run;

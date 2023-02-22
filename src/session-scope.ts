@@ -9,7 +9,11 @@ export type Session<SID> = {
   cache: WeakMap<Function, any>;
 }
 
-export type SessionApi<SID> = Pick<Session<SID>, 'id' | 'expires' | 'close'>;
+export type SessionApi<SID> = {
+  id: SID;
+  expires: Date;
+  close: () => void;
+};
 
 export type SessionIdResolver<PrM extends {}, PbM extends {}, ExtD extends {}, SID> = {
   (internal: PrM & PbM, external: ExtD): SID
@@ -32,21 +36,31 @@ const createSessionScope = <PrM extends {}, PbM extends {}, ExtD extends {}, SID
   cleanRunner: (cb: () => void) => void,
 ): SessionScopeManager<PrM, PbM, ExtD, SID> => {
   const sessions = new Map<SID, Session<SID>>();
+  let isScheduled = false;
+
+  const schedule = (cb: () => void) => {
+    if (isScheduled) return;
+    isScheduled = true;
+    cleanRunner(() => {
+      isScheduled = false;
+      cb();
+    });
+  };
 
   const closeSession = (id: SID) => {
     sessions.delete(id);
   };
 
-  const closeExpiredSessions = (now: number) => Array.from(sessions.values()).forEach(
-    ({ id, expires }) => (expires <= now ? closeSession(id) : undefined),
+  const closeExpiredSessions = (now: number) => sessions.forEach(
+    ({ id, expires }) => {
+      if (expires <= now) closeSession(id);
+    },
   );
 
   const clean = () => {
     if (sessions.size === 0) return;
-    cleanRunner(() => {
-      closeExpiredSessions(Date.now());
-      clean();
-    });
+    closeExpiredSessions(Date.now());
+    schedule(clean);
   };
 
   const createSession = (id: SID, expires: number) => {
@@ -57,17 +71,22 @@ const createSessionScope = <PrM extends {}, PbM extends {}, ExtD extends {}, SID
       close: () => closeSession(id),
     };
     sessions.set(id, session);
-    clean();
+    schedule(clean);
     return session;
   };
 
   const getSession = (id: SID, now: number): Session<SID> | null => {
     const session = sessions.get(id);
-    if (session == null || session.expires <= now) {
+
+    if (session == null) return null;
+
+    if (session.expires <= now) {
       sessions.delete(id);
       return null;
     }
+
     session.expires = now + sessionTTLSec * 1000;
+
     return session;
   };
 
@@ -90,7 +109,7 @@ const createSessionScope = <PrM extends {}, PbM extends {}, ExtD extends {}, SID
 
         if (cache.has(resolver)) return cache.get(resolver) as T;
 
-        const instance = resolver(internal, external, { id, expires, close });
+        const instance = resolver(internal, external, { id, expires: new Date(expires), close });
 
         cache.set(resolver, instance);
 

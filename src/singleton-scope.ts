@@ -9,10 +9,10 @@ export const singleton = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
 ): Resolver<PrM, PbM, ExtD, T> => {
   let result: { instance: T } | null = null;
   return decorated(
-    (internal: PrM & PbM, extenal: ExtD) => {
+    (internal: PrM & PbM, external: ExtD) => {
       if (result) return result.instance;
 
-      const instance = resolver(internal, extenal);
+      const instance = resolver(internal, external);
 
       result = { instance };
 

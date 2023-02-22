@@ -3,7 +3,7 @@
     "strict": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "target": "es2020",
     "outDir": "./esm",
     "baseUrl": "./src",
@@ -21,7 +21,7 @@
     "importHelpers": false
   },
   "types": ["jest", "node"],
-  "lib": ["es6", "es7"],
-  "include": ["src/**/*.ts", "src/v5/**/*.ts"],
+  "lib": ["ESNext"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "src/**/*.test.ts"]
 }

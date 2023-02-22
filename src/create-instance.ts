@@ -26,7 +26,7 @@ export const createInstanceFactory = <PrM extends {}, PbM extends {}, ExtD exten
     const resolver = resolvers[name];
 
     if (typeof resolver !== 'function') {
-      throw new Error(`Resolver for "${String(name)}" is not difined.`);
+      throw new Error(`Resolver for "${String(name)}" is not defined.`);
     }
 
     const instance = resolver(container, external);

@@ -7,7 +7,7 @@ import { memoize } from './utils/memoize';
 import { shallowMerge } from './utils/shallow-merge';
 import { readers } from './bind-with-module';
 import createContainerFactory from './container-factory';
-import { mergeResolvers } from './merge';
+import { mergeResolvers } from './merge-resolvers';
 import { ModuleBuilder, ProtoModule } from './module-types';
 import { Initializers, Resolvers } from './types';
 
@@ -42,14 +42,14 @@ const creatable = ({
   const privateNames = allNames(privateResolvers);
   if (selector != null && publicNames.length === 0 && privateNames.length === 0) return null;
 
-  const mergedConatiner = () => createContainerFactory(
+  const mergedContainer = () => createContainerFactory(
     {} as any,
     shallowMerge(privateResolvers, publicResolvers) as any,
     initializers as any,
   );
   const createContainer =
     selector != null
-      ? compose2(selector, mergedConatiner())
+      ? compose2(selector, mergedContainer())
       : createContainerFactory(privateResolvers, publicResolvers, initializers);
 
   return {
@@ -67,7 +67,7 @@ const singleton = (proto: any) => {
   return () => addMemoizer(() => 0);
 };
 
-const managebleCreate = (proto: any) => ({
+const manageableCreate = (proto: any) => ({
   memo: descriptor(memo(proto), true),
   singleton: descriptor(singleton(proto), true),
   ...creatable(proto),
@@ -75,7 +75,7 @@ const managebleCreate = (proto: any) => ({
 
 const expose = (proto: any) => (selector: any) => Object.create(
   Object.create({ [$proto]: proto }),
-  managebleCreate({ ...proto, selector }),
+  manageableCreate({ ...proto, selector }),
 );
 
 const useCases = (proto: any) => {
@@ -95,7 +95,7 @@ const init = (proto: any) => (initializers: any) => {
   };
 
   return Object.create(Object.create({ [$proto]: newProto }), {
-    ...managebleCreate(newProto),
+    ...manageableCreate(newProto),
     ...exposible(newProto),
   });
 };
@@ -107,7 +107,7 @@ export const builderApi = <PrM extends {}, PbM extends {}, ExtD extends {}>(
       private: descriptor(addPrivateResolvers(proto), true),
       public: descriptor(addPublicResolvers(proto), true),
       init: descriptor(init(proto), true),
-      ...managebleCreate(proto),
+      ...manageableCreate(proto),
       ...exposible(proto),
     });
 

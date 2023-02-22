@@ -16,8 +16,8 @@ export const runWith = <M>(mod: M): Run<M> => {
   return run;
 };
 
-export const reader = <M, Args extends any[], T>(readerfn: (...args: Args) => Reader<M, T>) =>
-  (mod: M): (...args: Args) => T => bindWithRun(readerfn, runWith(mod));
+export const reader = <M, Args extends any[], T>(readerFn: (...args: Args) => Reader<M, T>) =>
+  (mod: M): (...args: Args) => T => bindWithRun(readerFn, runWith(mod));
 
 export const readers = <M, Rs extends AnyReaders<M>>(readersMap: Rs) =>
   (mod: M): BoundReaders<Rs> =>

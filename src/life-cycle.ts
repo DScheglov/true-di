@@ -1,6 +1,6 @@
 export const TRANSIENT = 100 as const;
 export const ASYNC = 200 as const;
-export const MODULE = 303 as const;
+export const MODULE = 300 as const;
 export const SESSION = 400 as const;
 export const SINGLETON = 500 as const;
 

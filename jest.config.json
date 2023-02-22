@@ -1,0 +1,17 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "src/**/*.ts"
+  ],
+  "testPathIgnorePatterns": [
+    "/lib/', '/es/",
+    "/examples"
+  ],
+  "globals": {
+    "ts-jest": {
+      "tsconfig": "tsconfig.esm.json"
+    }
+  }
+}
