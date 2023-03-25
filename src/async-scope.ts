@@ -22,6 +22,10 @@ const contextProvider = (): ContextProvider<WeakMap<any, any>> => _contextProvid
 
 export const run = (cb: () => void) => contextProvider().run(new WeakMap(), cb);
 
+if (typeof window !== 'undefined') {
+  run(() => {});
+}
+
 export const asyncScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
   resolver: Resolver<PrM, PbM, ExtD, T>,
   initial?: [any, T],
@@ -32,6 +36,10 @@ export const asyncScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
   return decorated(
     (internal: PrM & PbM, external: ExtD): T => {
       const cache = contextProvider().get();
+
+      if (cache == null) {
+        console.warn('Async Context is not defined. Use scope.async.run to handle request with async di scope');
+      }
 
       if (cache.has(resolver)) return cache.get(resolver);
 
@@ -45,6 +53,7 @@ export const asyncScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
     'asyncScope',
     ASYNC,
     force,
+    asyncScope,
   );
 };
 

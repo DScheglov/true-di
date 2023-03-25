@@ -119,6 +119,7 @@ const createSessionScope = <PrM extends {}, PbM extends {}, ExtD extends {}, SID
       'session',
       SESSION,
       true,
+      sessionScope,
     );
 
   return {

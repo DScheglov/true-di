@@ -10,16 +10,32 @@ import createContainerFactory from './container-factory';
 import { mergeResolvers } from './merge-resolvers';
 import { ModuleBuilder, ProtoModule } from './module-types';
 import { Initializers, Resolvers } from './types';
+import { cloneFn } from './utils/clone-fn';
 
 const $proto = Symbol.for('true-di/module-proto');
+
+const prepareResolvers = (resolvers: any, decorator: any = (x: any) => x) => mapObject(
+  resolvers,
+  name => decorator(cloneFn(resolvers[name])),
+);
+
+const copyResolver = (resolver: any) =>
+  (typeof resolver.original === 'function' && typeof resolver.decorator === 'function'
+    ? resolver.decorator(cloneFn(resolver.original))
+    : cloneFn(resolver));
+
+const copyResolvers = (resolvers: any) => mapObject(
+  resolvers,
+  name => copyResolver(resolvers[name]),
+);
 
 const addPrivateResolvers = (proto: any) => (decoratorOrItems: any, items: any) => builderApi({
   ...proto,
   privateResolvers: mergeResolvers(
     proto.privateResolvers,
     typeof decoratorOrItems === 'function'
-      ? mapObject(items, name => decoratorOrItems(items[name]))
-      : decoratorOrItems,
+      ? prepareResolvers(items, decoratorOrItems)
+      : prepareResolvers(decoratorOrItems),
   ),
 });
 
@@ -28,8 +44,8 @@ const addPublicResolvers = (proto: any) => (decoratorOrItems: any, items: any) =
   publicResolvers: mergeResolvers(
     proto.publicResolvers,
     typeof decoratorOrItems === 'function'
-      ? mapObject(items, name => decoratorOrItems(items[name]))
-      : decoratorOrItems,
+      ? prepareResolvers(items, decoratorOrItems)
+      : prepareResolvers(decoratorOrItems),
   ),
 });
 
@@ -38,23 +54,23 @@ const extendWith = (proto: any) => (module: any, { asPublic, asPrivate }: any = 
   ...(asPublic ? {
     publicResolvers: shallowMerge(
       proto.publicResolvers,
-      (module as any)[$proto].publicResolvers,
-      (module as any)[$proto].privateResolvers,
+      copyResolvers((module as any)[$proto].publicResolvers),
+      copyResolvers((module as any)[$proto].privateResolvers),
     ),
   } : asPrivate ? {
     privateResolvers: shallowMerge(
       proto.privateResolvers,
-      (module as any)[$proto].publicResolvers,
-      (module as any)[$proto].privateResolvers,
+      copyResolvers((module as any)[$proto].publicResolvers),
+      copyResolvers((module as any)[$proto].privateResolvers),
     ),
   } : {
     privateResolvers: shallowMerge(
       proto.privateResolvers,
-      (module as any)[$proto].privateResolvers,
+      copyResolvers((module as any)[$proto].privateResolvers),
     ),
     publicResolvers: shallowMerge(
       proto.publicResolvers,
-      (module as any)[$proto].publicResolvers,
+      copyResolvers((module as any)[$proto].publicResolvers),
     ),
   }),
 

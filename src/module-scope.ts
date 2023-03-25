@@ -26,4 +26,5 @@ export const moduleScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
     'moduleScope',
     MODULE,
     force,
+    moduleScope,
   );

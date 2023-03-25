@@ -4,6 +4,9 @@ const diAsyncContext = new AsyncLocalStorage();
 
 const get = <T>() => diAsyncContext.getStore() as T;
 
-const run = <T>(context: T, cb: () => void) => diAsyncContext.run(context, cb);
+const run = <T, R>(context: T, cb: () => R) => {
+  diAsyncContext.enterWith(context);
+  return cb();
+};
 
 export default { get, run };

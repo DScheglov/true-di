@@ -11,4 +11,5 @@ export const transient = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
     'transient',
     TRANSIENT,
     force,
+    transient,
   );

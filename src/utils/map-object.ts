@@ -11,6 +11,8 @@ const mapObject = <
   ): DestType => names.reduce(
     (newObj, key) => Object.defineProperty(newObj, key, {
       enumerable: Object.getOwnPropertyDescriptor(obj, key)!.enumerable,
+      writable: true,
+      configurable: true,
       value: mapper(key, obj),
     }),
     Object.create(null),

@@ -1,8 +1,8 @@
 let _context: any;
 
-const run = <T>(context: T, cb: () => void) => {
+const run = <T, R>(context: T, cb: () => R) => {
   _context = context;
-  cb();
+  return cb();
 };
 
 const get = <T>() => _context as T;

@@ -22,6 +22,7 @@ export const singleton = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
     'singleton',
     SINGLETON,
     true,
+    singleton,
   );
 };
 
