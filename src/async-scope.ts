@@ -8,7 +8,7 @@ export interface ContextProvider<T> {
 }
 
 let _contextProvider: ContextProvider<WeakMap<any, any>> =
-  (global as any).window !== global
+  typeof window === 'undefined'
     ? require('./als-context-provider').default
     : require('./sync-context-provider').default;
 
