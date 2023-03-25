@@ -1,7 +1,9 @@
 import { applyDiscount } from '../domain/products';
-import { IDiscountRateProvider } from '../interfaces/IDiscountService';
-import { IProductsProvider } from '../interfaces/IProductRepo';
-import { IProductService } from '../interfaces/IProductService';
+import {
+  IDiscountRateProvider,
+  IProductService,
+  IProductsProvider,
+} from '../interfaces';
 
 export class ProductService implements IProductService {
   constructor(

@@ -14,146 +14,266 @@ npm i --save true-di
 yarn add true-di
 ```
 
-## Documentation
+## Usage Example
 
-[Read Documentation on Git Book](https://dscheglov.gitbook.io/true-di/)
+The following code is an example solution that is based on the example used in the book ["Dependency Injection Principles, Practices, and Patterns"](https://www.manning.com/books/dependency-injection-principles-practices-patterns) by Steven van Deursen and Mark Seemann.
 
-## Usage Example:
+The problem is to display the list of featured products and discount their prices for the preferred customers.
 
-- [Live Demo on Sandbox](https://codesandbox.io/s/github/DScheglov/true-di/tree/master/examples/getting-started?fontsize=14&hidenavigation=1&initialpath=%2Forders&module=%2Fsrc%2Fcontainer.ts&theme=dark)
-- [Example Source Code](./examples/getting-started)
+More details on the example could be found in the "Getting Started" Example Project
+[README](./examples/getting-started/README.md) file.
 
-
-**./src/container.ts**
+### ./src/main.ts - composition root
 
 ```typescript
-import diContainer from 'true-di';
-import { ILogger, IDataSourceService, IECommerceService } from './interfaces';
-import Logger from './Logger';
-import DataSourceService from './DataSourceService';
-import ECommerceService from './ECommerceService';
+import Module from 'true-di';
+import { DiscountService } from './DiscountService';
+import { Product } from './domain/products';
+import { ProductRepoMock } from './ProductRepoMock';
+import { ProductService } from './ProductService';
+import { UserService } from './UserService';
+import PRODUCTS_JSON from './products.json';
 
-type IServices = {
-  logger: ILogger,
-  dataSourceService: IDataSourceService,
-  ecommerceService: IECommerceService,
-}
+const main = Module()
+  .private({
+    productRepo: () =>
+      new ProductRepoMock(PRODUCTS_JSON as Product[]),
+  })
+  .public({
+    userService: (_, { token }: { token: string | null }) =>
+      new UserService(token),
+  })
+  .private({
+    discountService: ({ userService }) =>
+      new DiscountService(userService),
+  })
+  .public({
+    productService: ({ productRepo, discountService }) =>
+      new ProductService(productRepo, discountService),
+  });
 
-export default diContainer<IServices>({
-  logger: () =>
-    new Logger(),
-
-  dataSourceService: ({ logger }) =>
-    new DataSourceService(logger),
-
-  ecommerceService: ({ logger, dataSourceService }) =>
-    new ECommerceService(logger, dataSourceService),
-});
+export default main;
 ```
 
-**./src/ECommerceService/index.ts**
+### ./src/DiscountService/index.ts
 
 ```typescript
+import { IDiscountService, IUserProvider } from '../interfaces';
+
+export const PREFERRED_CUSTOMER_DISCOUNT: number = 0.05;
+export const NO_DISCOUNT: number = 0;
+
+export class DiscountService implements IDiscountService {
+  constructor(
+    private readonly userService: IUserProvider,
+  ) {}
+
+  async getDiscountRate() {
+    const user = await this.userService.getCurrentUser();
+    return user != null && user.isPreferredCustomer
+      ? PREFERRED_CUSTOMER_DISCOUNT
+      : NO_DISCOUNT;
+  }
+}
+```
+
+### ./src/ProductRepoMock/index.ts
+
+```typescript
+import { Product } from '../domain/products';
+import { IProductRepo } from '../interfaces';
+import { matches } from '../utils/matches';
+
+export class ProductRepoMock implements IProductRepo {
+  constructor(private readonly products: Product[]) {}
+
+  async getProducts(match?: Partial<Product>): Promise<Product[]> {
+    return match != null ? this.products.filter(matches(match)) : this.products.slice();
+  }
+}
+```
+
+### ./src/UserService/index.ts
+
+```typescript
+import { parseToken } from '../domain/user-token';
+import { User } from '../domain/users';
+import { IUserService } from '../interfaces';
+
+export class UserService implements IUserService {
+  #user: User | null = null;
+
+  #token: string | null = null;
+
+  constructor(readonly token: string | null) {
+    this.#token = token;
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    if (this.#user == null && this.#token != null) {
+      this.#user = parseToken(this.#token);
+    }
+
+    return this.#user;
+  }
+}
+```
+
+### ./src/ProductService/index.ts
+
+```typescript
+import { applyDiscount } from '../domain/products';
 import {
-  IECommerceService, IDataSourceService, Order, IInfoLogger
+  IDiscountRateProvider,
+  IProductService,
+  IProductsProvider,
 } from '../interfaces';
 
-class ECommerceSerive implements IECommerceService {
+export class ProductService implements IProductService {
   constructor(
-    private readonly _logger: IInfoLogger,
-    private readonly _dataSourceService: IDataSourceService,
-  ) {
-    _logger.info('ECommerceService has been created');
-  }
+    private readonly products: IProductsProvider,
+    private readonly discountService: IDiscountRateProvider,
+  ) {}
 
-  async getOrders(): Promise<Order[]> {
-    const { _logger, _dataSourceService } = this;
-    // do something
-  }
+  async getFeaturedProducts() {
+    const discountRate = await this.discountService.getDiscountRate();
+    const featuredProducts = await this.products.getProducts({ isFeatured: true });
 
-  async getOrderById(id: string): Promise<Order | null> {
-    const { _logger, _dataSourceService } = this;
-    // do something
+    return discountRate > 0
+      ? featuredProducts.map(applyDiscount(discountRate))
+      : featuredProducts;
   }
 }
-
-export default ECommerceSerive;
 ```
 
-**./src/controller.ts**
+### ./src/products-controller.ts
 
 ```typescript
-import { Request, Response, NextFunction as Next } from 'express';
-import { IGetOrderById, IGetOrders } from './interfaces';
-import { sendJson } from './utils/sendJson';
-import { expectFound } from './utils/NotFoundError';
+import type { Request, Response } from 'express';
+import { JSONMoneyReplacer } from './domain/money';
+import { IFeaturedProductProvider } from './interfaces/IProductService';
 
-export const getOrders = (req: Request, res: Response, next: Next) =>
-  ({ ecommerceService }: { ecommerceService: IGetOrders }) =>
-    ecommerceService
-      .getOrders()
-      .then(sendJson(res), next);
+type GetFeaturedProductsDeps = {
+  productService: IFeaturedProductProvider;
+}
 
-export const getOrderById = ({ params }: Request<{ id: string }>, res: Response, next: Next) =>
-  ({ ecommerceService }: { ecommerceService: IGetOrderById }) =>
-    ecommerceService
-      .getOrderById(params.id)
-      .then(expectFound(`Order(${params.id})`))
-      .then(sendJson(res), next);
+export const getFeaturedProducts =
+  (req: Request, res: Response) =>
+    async ({ productService }: GetFeaturedProductsDeps) => {
+      const featuredProducts = await productService.getFeaturedProducts();
+
+      res
+        .status(200)
+        .type('application/json')
+        .send(JSON.stringify(featuredProducts, JSONMoneyReplacer, 2));
+    };
+
 ```
 
-**./src/index.ts**
+### ./src/index.ts
 
 ```typescript
 import express from 'express';
 import createContext from 'express-async-context';
-import container from './container';
-import { getOrderById, getOrders } from './controller';
-import { handleErrors } from './middlewares';
+import main from './main';
+import { getFeaturedProducts } from './products-controller';
 
 const app = express();
-const Context = createContext(() => container);
+
+const Context = createContext(
+  req => main.create({ token: req.headers.authorization ?? null }),
+);
 
 app.use(Context.provider);
 
-app.get('/orders', Context.consumer(getOrders));
-app.get('/orders/:id', Context.consumer(getOrderById));
+app.get('/featured-products', Context.consumer(getFeaturedProducts));
 
-app.use(Context.consumer(handleErrors));
+if (module === require.main) {
+  app.listen(8080, () => {
+    console.log('Server is listening on port: 8080');
+    console.log('Follow: http://localhost:8080/featured-products');
 
-app.listen(8080, () => {
-  console.log('Server is listening on port: 8080');
-  console.log('Follow: http://localhost:8080/orders');
-});
+    console.log(`
+    . .env && curl -H "authorization: \${USER_TOKEN}" http://localhost:8080/featured-products
+    `);
+  });
+}
+
+export default app;
 ```
 
-## Motivation
+## Some Concepts
 
-`true-di` is designed to be used with [Apollo Server](https://github.com/apollographql/apollo-server) considering to make resolvers as thin as possible, to keep all business logic testable and framework agnostic by strictly following **S**.**O**.**L**.**I**.**D** Principles.
+### Module
 
-Despite the origin motivation being related to Apollo Server the library could be used with any other framework or library that supports injection through the context.
+In the context of `true-di`, a **Module** is a collection of named and typed
+items that can communicate with each other. These items can be either
+**private**,meaning they are only accessible within the **Module**, or
+**public**, which allows them to be accessed both inside and outside of the
+**Module**.
 
-The [Getting Started Example](./examples/getting-started) shows how to use `true-di` with one of the most popular nodejs libraries: [Express](https://expressjs.com/). Almost all code in the example (~95%) is covered with tests that prove your business logic could be easily decoupled and kept independent even from dependency injection mechanism.
+Essentially, a **Module** can be thought of as an instance of a class, with
+private and public fields. However, in `true-di`, none of the items within the
+**Module** are created until they are requested from outside of the module,
+including the function provided to the `.expose` method of the **ModuleBuilder**.
 
-Thanking to business logic does not depend on specific injection mechanism you can defer the
-choice of framework. Such deferring is suggested by Robert Martin:
+The **Module** could be created by invoking the **Module Factory** function.
 
-> The purpose of a good architecture is to defer decisions, delay decisions. The job of an architect is not to make decisions, the job of an architect is to build a structure that allows decisions to be delayed as long as possible.
+### Module Factory
 
-[&copy; 2014, Robert C. Martin: Clean Architecture and Design, NDC Conference](https://vimeo.com/68215570),
+The **Module Factory** is a function that takes an object called **external dependencies**
+as input and uses it to create a **Module**. Later on, when an item within the
+**Module** is requested, the corresponding **Resolver** will receive the
+**external dependencies** as input to resolve the item.
 
-Summarizing, `true-di` is based on:
- - emulattion of a plain object that allows to specify exact type for each item and makes strict static type checking possible
- - explicit dependency injection for business logic (see example: [./src/container.ts](./examples/getting-started/src/container.ts))
- - transperent injection through the context for framework-integrated components (see example: [./src/index.ts](./examples/getting-started/src/index.ts))
+In `true-di`, the **Module Factory** is essentially a composition of Resolvers
+that have been defined for each item within the module. This means that the code
+defining the Module Factory serves as the Composition Root, where all loosely
+coupled components such as classes and functions are brought together and
+assembled in a cohesive manner.
 
+### Resolver & Resolution Rule
 
-## Some useful facts about `true-di`?
+The **Resolver** is an item factory, that receives two parameters:
 
-1. No syntatic decorators (annotations) as well as `reflect-metadata` are needed
-1. `diContainer` uses `getters` under the hood. Container doesn't create an item until your code requests
-1. Constructor-injection of cyclic dependency raises an exception
-1. The property-, setter- dependency injects is also supported (what allows to resolve cyclic dependencies)
-1. `diContainer`-s could be composed
-1. Symbolic names are also supported for items
+- **internal dependencies** - an object containing all Module items (excluding
+the creating one)
+- **external dependencies** - an object passed to the **Module Factory**
 
+**Resolver** is an implementation of the **Resolution Rule**, the rule defines how
+to create a specific item using other items of **Module** and **external dependencies**.
+
+Unlike some other dependency injection solutions, `true-di` does not rely on interfaces
+or type names to define how to create an item. Instead, it uses explicit item
+names and **Resolvers** defined for each name. This approach avoids the need for
+additional abstractions in cases where a single interface is implemented by
+several different components (classes).
+
+Also it allows to use `true-di` with JS-projects those don't have any interfaces
+or type names nor in build time, nor in runtime.
+
+### Initializers
+
+**Initializer** - is a function associated with a some item of **Module** that receives
+two arguments:
+
+- the **item** to be initialized
+- the **internal dependencies** object with all items of the **Module**
+
+And initializes the **item**.
+
+The **Initializer** is an implement of the "Injection via property" pattern
+that is useful to resolve cyclic dependencies.
+
+> **Note**: The Cyclic Dependencies is an anti-pattern and should be avoided whenever
+> it is possible.
+
+The **Initializers** is an object that maps item names to correspondent item **Initializer**
+
+### Module Builder
+
+### Module Use Cases
+
+### Life Time Scope
+
+## API Reference

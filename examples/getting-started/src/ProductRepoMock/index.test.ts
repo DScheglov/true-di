@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { ProductRepo } from '.';
+import { ProductRepoMock } from '.';
 import { EUR, money } from '../domain/money';
 import { Product } from '../domain/products';
 
@@ -20,7 +20,7 @@ describe('Product Repo', () => {
     isFeatured: true,
   };
 
-  const productRepo = new ProductRepo([
+  const productRepo = new ProductRepoMock([
     apples,
     peaches,
   ]);

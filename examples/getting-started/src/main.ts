@@ -1,7 +1,7 @@
 import Module from '../../../src';
 import { DiscountService } from './DiscountService';
 import { Product } from './domain/products';
-import { ProductRepo } from './ProductRepo';
+import { ProductRepoMock } from './ProductRepoMock';
 import { ProductService } from './ProductService';
 import { UserService } from './UserService';
 import PRODUCTS_JSON from './products.json';
@@ -9,7 +9,7 @@ import PRODUCTS_JSON from './products.json';
 const main = Module()
   .private({
     productRepo: () =>
-      new ProductRepo(PRODUCTS_JSON as Product[]),
+      new ProductRepoMock(PRODUCTS_JSON as Product[]),
   })
   .public({
     userService: (_, { token }: { token: string | null }) =>

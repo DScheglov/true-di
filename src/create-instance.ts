@@ -15,7 +15,6 @@ export const createInstanceFactory = <PrM extends {}, PbM extends {}, ExtD exten
   let lifeCycles: Partial<{ [key in keyof M]: LifeCycle }> = {};
 
   return <Token extends keyof M>(container: M, name: Token, external: ExtD): M[Token] => {
-    // console.log({ name, init: init.length, stack: stack.size });
     if (stack.push(name)[0] != null) {
       throw new Error(
         'Cyclic dependencies couldn\'t be resolved.\n\n' +

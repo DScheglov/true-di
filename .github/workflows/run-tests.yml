@@ -72,6 +72,6 @@ jobs:
       - name: Publish to npm
         run: |
           cp .npmrc.config .npmrc
-          npm publish
+          npm publish --tag future
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

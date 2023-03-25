@@ -3,9 +3,9 @@ import { LifeCycle } from './life-cycle';
 export type { LifeCycle };
 
 export type Resolver <PrM extends {}, PbM extends {}, ExtD extends {}, T> = {
-  (internal: PrM & PbM, extenal: ExtD): T;
+  (internal: PrM & PbM, external: ExtD): T;
   lifeCycle?: LifeCycle;
-  original?: (internal: PrM & PbM, extenal: ExtD) => T;
+  original?: (internal: PrM & PbM, external: ExtD) => T;
   force?: boolean;
 }
 
@@ -40,7 +40,7 @@ export type ExtendedResolver <
   T,
   Extra extends any[] = []
 > = {
-  (internal: PrM & PbM, extenal: ExtD, ...extra: Extra): T;
+  (internal: PrM & PbM, external: ExtD, ...extra: Extra): T;
 }
 export type ScopeDecorator<
   PrM extends {},

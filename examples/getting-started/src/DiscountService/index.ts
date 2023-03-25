@@ -1,5 +1,4 @@
-import IDiscountService from '../interfaces/IDiscountService';
-import { IUserProvider } from '../interfaces/IUserService';
+import { IDiscountService, IUserProvider } from '../interfaces';
 
 export const PREFERRED_CUSTOMER_DISCOUNT: number = 0.05;
 export const NO_DISCOUNT: number = 0;

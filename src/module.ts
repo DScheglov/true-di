@@ -33,6 +33,34 @@ const addPublicResolvers = (proto: any) => (decoratorOrItems: any, items: any) =
   ),
 });
 
+const extendWith = (proto: any) => (module: any, { asPublic, asPrivate }: any = {}) => builderApi({
+  ...proto,
+  ...(asPublic ? {
+    publicResolvers: shallowMerge(
+      proto.publicResolvers,
+      (module as any)[$proto].publicResolvers,
+      (module as any)[$proto].privateResolvers,
+    ),
+  } : asPrivate ? {
+    privateResolvers: shallowMerge(
+      proto.privateResolvers,
+      (module as any)[$proto].publicResolvers,
+      (module as any)[$proto].privateResolvers,
+    ),
+  } : {
+    privateResolvers: shallowMerge(
+      proto.privateResolvers,
+      (module as any)[$proto].privateResolvers,
+    ),
+    publicResolvers: shallowMerge(
+      proto.publicResolvers,
+      (module as any)[$proto].publicResolvers,
+    ),
+  }),
+
+  initializers: shallowMerge(proto.initializers, (module as any)[$proto].initializers),
+});
+
 const creatable = ({
   privateResolvers, publicResolvers, initializers, selector, memoizer,
 }: any) => {
@@ -106,6 +134,7 @@ export const builderApi = <PrM extends {}, PbM extends {}, ExtD extends {}>(
     Object.create(Object.create({ [$proto]: proto }), {
       private: descriptor(addPrivateResolvers(proto), true),
       public: descriptor(addPublicResolvers(proto), true),
+      extendWith: descriptor(extendWith(proto), true),
       init: descriptor(init(proto), true),
       ...manageableCreate(proto),
       ...exposible(proto),
@@ -123,10 +152,12 @@ const Module = <PrM extends {} = {}, PbM extends {} = {}, ExtD extends {} = {}>(
     memoizer: null,
   });
 
-const from = (module: any) => builderApi({
-  privateResolvers: shallowMerge(module[$proto].privateResolvers),
-  publicResolvers: shallowMerge(module[$proto].publicResolvers),
-  initializers: shallowMerge(module[$proto].initializers),
+const from = <PrM extends {} = {}, PbM extends {} = {}, ExtD extends {} = {}>(
+  module: ModuleBuilder<PrM, PbM, ExtD>,
+) => builderApi<PrM, PbM, ExtD>({
+  privateResolvers: shallowMerge((module as any)[$proto].privateResolvers),
+  publicResolvers: shallowMerge((module as any)[$proto].publicResolvers),
+  initializers: shallowMerge((module as any)[$proto].initializers),
   selector: null,
   memoizer: null,
 });

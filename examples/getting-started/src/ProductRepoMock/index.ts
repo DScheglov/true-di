@@ -1,8 +1,8 @@
 import { Product } from '../domain/products';
-import { IProductRepo } from '../interfaces/IProductRepo';
+import { IProductRepo } from '../interfaces';
 import { matches } from '../utils/matches';
 
-export class ProductRepo implements IProductRepo {
+export class ProductRepoMock implements IProductRepo {
   constructor(private readonly products: Product[]) {}
 
   async getProducts(match?: Partial<Product>): Promise<Product[]> {

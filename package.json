@@ -87,6 +87,7 @@
         "as-needed"
       ],
       "operator-linebreak": 0,
+      "object-curly-newline": 0,
       "no-underscore-dangle": 0,
       "@typescript-eslint/no-unused-vars": [
         "error"

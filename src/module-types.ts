@@ -7,8 +7,14 @@ import {
 
 export type ExcludeKeys<T extends {}> = Exclude<string | symbol, keyof T>;
 
+export type NonIntercept<T extends {}> = {
+  [prop in PropertyKey]: any
+} & {
+  [prop in keyof T]?: never
+}
+
 export type StrictFunctionDecorator = {
-  <Args extends any[], R>(fn: (...args: Args) => R): (...args: Args) => R;
+  <Args extends any[], Res>(fn: (...args: Args) => Res): (...args: Args) => Res;
 };
 
 export type ExpositionSelector<Items extends {}, T> = {
@@ -35,6 +41,25 @@ export type ExtItemResolver<
     [key in Token]: ExtendedResolver<PrM, PbM, Params, T, Extra>;
   };
 
+export type ItemsResolvers<
+  T extends {},
+  PrM extends {},
+  PbM extends {},
+  ExtD extends {},
+> = {
+  [p in keyof T]: Resolver<PrM, PbM, ExtD, T[p]>
+}
+
+export type ExtItemsResolvers<
+  T extends {},
+  PrM extends {},
+  PbM extends {},
+  ExtD extends {},
+  Extra extends any[],
+> = {
+  [p in keyof T]: ExtendedResolver<PrM, PbM, ExtD, T[p], Extra>
+}
+
 export type ProtoModule<PrM extends {}, PbM extends {}, ExtD extends {}> = {
   privateResolvers: Resolvers<PrM, PrM, PbM, ExtD>;
   publicResolvers: Resolvers<PbM, PrM, PbM, ExtD>;
@@ -52,7 +77,7 @@ export type Creatable<
   [keyof ExtD] extends [never] ? { create(): PbM; } :
   { create(params: ExtD): PbM; };
 
-export type ManagebleCreate<
+export type ManageableCreate<
   PbM,
   ExtD extends {},
   EmptyResult extends boolean = [keyof PbM] extends [never] ? true : false
@@ -68,13 +93,13 @@ export type ManagebleCreate<
   );
 
 export type Exposible<PrM extends {}, PbM extends {}, ExtD extends {}> = {
-  expose<T>(selector: ExpositionSelector<PrM & PbM, T>): ManagebleCreate<T, ExtD, false>;
+  expose<T>(selector: ExpositionSelector<PrM & PbM, T>): ManageableCreate<T, ExtD, false>;
   useCases<Thunks extends AnyReaders<PrM & PbM>>(
     thunks: Thunks
-  ): ManagebleCreate<BoundReaders<Thunks>, ExtD>;
+  ): ManageableCreate<BoundReaders<Thunks>, ExtD>;
 };
 
-export type Extendable<PrM extends {}, PbM extends {}, ExtD extends {}> = {
+export type Extensible<PrM extends {}, PbM extends {}, ExtD extends {}> = {
   private<Token extends ExcludeKeys<PbM & PrM>, Params extends {}, T>(
     items: ItemResolver<PrM, PbM, Token, Params, T>
   ): ModuleBuilder<PrM & { [key in Token]: T }, PbM, Params & ExtD>;
@@ -104,16 +129,51 @@ export type Extendable<PrM extends {}, PbM extends {}, ExtD extends {}> = {
     scopeDecorator: ScopeDecorator<PrM, PbM, ExtD, T, DP, Extra>,
     items: ExtItemResolver<PrM, PbM, Token, Params, T, Extra>
   ): ModuleBuilder<PrM, PbM & { [key in Token]: T }, Params & ExtD & DP>;
+
+  extendWith<
+    NPrM extends NonIntercept<PrM & PbM>,
+    NPbM extends NonIntercept<PrM & PbM>,
+    NExtD extends {}
+  >(
+    module: ModuleBuilder<NPrM, NPbM, NExtD>,
+  ): ModuleBuilder<PrM & NPrM, PbM & NPbM, ExtD & NExtD>;
+
+  extendWith<
+    NPrM extends NonIntercept<PrM & PbM>,
+    NPbM extends NonIntercept<PrM & PbM>,
+    NExtD extends {}
+  >(
+    module: ModuleBuilder<NPrM, NPbM, NExtD>,
+    options: { asPublic?: false, asPrivate?: false }
+  ): ModuleBuilder<PrM & NPrM, PbM & NPbM, ExtD & NExtD>;
+
+  extendWith<
+    NPrM extends NonIntercept<PrM & PbM>,
+    NPbM extends NonIntercept<PrM & PbM>,
+    NExtD extends {}
+  >(
+    module: ModuleBuilder<NPrM, NPbM, NExtD>,
+    options: { asPublic: true }
+  ): ModuleBuilder<PrM, PbM & NPbM & NPrM, ExtD & NExtD>;
+
+  extendWith<
+    NPrM extends NonIntercept<PrM & PbM>,
+    NPbM extends NonIntercept<PrM & PbM>,
+    NExtD extends {}
+  >(
+    module: ModuleBuilder<NPrM, NPbM, NExtD>,
+    options: { asPrivate: true }
+  ): ModuleBuilder<PrM & NPbM & NPrM, PbM, ExtD & NExtD>;
 };
 
 export type Initable<PrM extends {}, PbM extends {}, ExtD extends {}> = {
   init(
     initializers: Initializers<PrM & PbM, ExtD
-  >): ManagebleCreate<PbM, ExtD> & Exposible<PrM, PbM, ExtD>;
+  >): ManageableCreate<PbM, ExtD> & Exposible<PrM, PbM, ExtD>;
 }
 
 export type ModuleBuilder<PrM extends {}, PbM extends {}, ExtD extends {}> =
-  & Extendable<PrM, PbM, ExtD>
+  & Extensible<PrM, PbM, ExtD>
   & Initable<PrM, PbM, ExtD>
   & Exposible<PrM, PbM, ExtD>
-  & ManagebleCreate<PbM, ExtD>;
+  & ManageableCreate<PbM, ExtD>;

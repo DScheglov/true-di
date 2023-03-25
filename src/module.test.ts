@@ -1,4 +1,5 @@
 import type { Equal, Expect } from '@type-challenges/utils';
+import { asUseCases } from './as-use-cases';
 import Module from './module';
 import scope from './scope';
 
@@ -185,5 +186,101 @@ describe('module', () => {
 
     expect(obj1).toEqual({ index: 1, name: 'Item #1' });
     expect(obj2).toEqual({ index: 2, name: 'Item #1' });
+  });
+
+  it('is possible to create a module from module', () => {
+    const root = Module()
+      .private({ x: () => 1 })
+      .private({ y: () => 2 });
+
+    const main = Module.from(root)
+      .public({ z: ({ x, y }) => x + y })
+      .create();
+
+    expect(main.z).toBe(3);
+  });
+
+  it('is possible to extend module', () => {
+    const root1 = Module()
+      .private(scope.singleton, {
+        x: (_, { v }: { v: number }) => `${v}` as const,
+      })
+      .private({ y: () => 'y' as const });
+
+    const root2 = Module()
+      .private({ z: () => 1 as const })
+      .private({ t: () => 2 as const });
+
+    const main = Module()
+      .extendWith(root1, { asPublic: true })
+      .extendWith(root2)
+      .public({ res: ({ x, y, z, t }) => `${x}: ${z}, ${y}: ${t}` as const })
+      .create({ v: 2 });
+
+    expect(main.x).toBe('2');
+    expect(main.y).toBe('y');
+    expect(main.res).toBe('2: 1, y: 2');
+  });
+
+  it('is possible to create the use cases items', () => {
+    const module = Module()
+      .private({ x: () => 1 })
+      .private({ y: () => 2 })
+      .public({
+        z: asUseCases({
+          sum: (factor: number) => ({ x, y }) => factor * (x + y),
+          diff: (factor: number) => ({ x, y }) => factor * (x - y),
+        }),
+      })
+      .create();
+
+    expect(module.z.sum(1)).toBe(3);
+    expect(module.z.diff(2)).toBe(-2);
+  });
+
+  it('is possible to create the use cases items (with extracted use cases)', () => {
+    type Deps = { x: number, y: number, t?: number }
+    const sum = (factor: number) => ({ x, y }: Deps) => factor * (x + y);
+    const diff = (factor: number) => ({ x, y }: Deps) => factor * (x - y);
+
+    const module = Module()
+      .private({ x: () => 1 })
+      .private({ y: () => 2 })
+      .public({ z: asUseCases({ sum, diff }) })
+      .create();
+
+    expect(module.z.sum(1)).toBe(3);
+    expect(module.z.diff(2)).toBe(-2);
+  });
+
+  it('is possible to resolve cyclic dependencies', () => {
+    type TNode = {
+      value: number,
+      parent: TNode | null;
+      child: TNode | null;
+    }
+
+    const node = (value: number): TNode => ({ value, parent: null, child: null });
+
+    const module = Module()
+      .public({ a: (_, { a }: { a: number }) => node(a) })
+      .public({ b: (_, { b }: { b: number }) => node(b) })
+      .init({
+        a(a, { b }) { a.child = b; },
+        b(b, { a }) { b.parent = a; },
+      })
+      .create({ a: 2, b: 3 });
+
+    expect(module.a).toEqual({
+      value: 2,
+      parent: null,
+      child: module.b,
+    });
+
+    expect(module.b).toEqual({
+      value: 3,
+      parent: module.a,
+      child: null,
+    });
   });
 });
