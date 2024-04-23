@@ -9,7 +9,9 @@ export class ProductService implements IProductService {
   constructor(
     private readonly products: IProductsProvider,
     private readonly discountService: IDiscountRateProvider,
-  ) {}
+  ) {
+    console.log('Creating a Product Service');
+  }
 
   async getFeaturedProducts() {
     const discountRate = await this.discountService.getDiscountRate();

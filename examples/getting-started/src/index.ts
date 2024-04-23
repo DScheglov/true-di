@@ -1,17 +1,29 @@
 import express from 'express';
-import createContext from 'express-async-context';
 import main from './main';
-import { getFeaturedProducts } from './products-controller';
+import { scope } from '../../../src';
+import { JSONMoneyReplacer } from './domain/money';
 
 const app = express();
 
-const Context = createContext(
-  req => main.create({ token: req.headers.authorization ?? null }),
-);
+app.use((req, res, next) => {
+  scope.async.run(next);
+});
 
-app.use(Context.provider);
+app.use((req, res, next) => {
+  main.userService.setToken(req.headers.authorization ?? null);
+  next();
+});
 
-app.get('/featured-products', Context.consumer(getFeaturedProducts));
+app.get('/featured-products', main.productController.getFeaturedProducts);
+
+app.get('/featured-products-2', async (req, res) => {
+  const featuredProducts = await main.productService.getFeaturedProducts();
+
+  res
+    .status(200)
+    .type('application/json')
+    .send(JSON.stringify(featuredProducts, JSONMoneyReplacer, 2));
+});
 
 if (module === require.main) {
   app.listen(8080, () => {

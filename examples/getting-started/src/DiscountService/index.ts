@@ -6,7 +6,9 @@ export const NO_DISCOUNT: number = 0;
 export class DiscountService implements IDiscountService {
   constructor(
     private readonly userService: IUserProvider,
-  ) {}
+  ) {
+    console.log('Creating a Discounting Service');
+  }
 
   async getDiscountRate() {
     const user = await this.userService.getCurrentUser();

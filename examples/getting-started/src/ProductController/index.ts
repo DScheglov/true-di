@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import { JSONMoneyReplacer } from './domain/money';
-import { IFeaturedProductProvider } from './interfaces/IProductService';
+import { JSONMoneyReplacer } from '../domain/money';
+import { IFeaturedProductProvider } from '../interfaces/IProductService';
 
 type GetFeaturedProductsDeps = {
   productService: IFeaturedProductProvider;

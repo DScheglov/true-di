@@ -26,12 +26,13 @@ More details on the example could be found in the "Getting Started" Example Proj
 ### ./src/main.ts - composition root
 
 ```typescript
-import Module from 'true-di';
+import Module, { asUseCases, scope } from 'true-di';
 import { DiscountService } from './DiscountService';
 import { Product } from './domain/products';
 import { ProductRepoMock } from './ProductRepoMock';
 import { ProductService } from './ProductService';
 import { UserService } from './UserService';
+import * as productController from './ProductController';
 import PRODUCTS_JSON from './products.json';
 
 const main = Module()
@@ -39,9 +40,9 @@ const main = Module()
     productRepo: () =>
       new ProductRepoMock(PRODUCTS_JSON as Product[]),
   })
-  .public({
-    userService: (_, { token }: { token: string | null }) =>
-      new UserService(token),
+  .public(scope.async, {
+    userService: () =>
+      new UserService(),
   })
   .private({
     discountService: ({ userService }) =>
@@ -50,9 +51,14 @@ const main = Module()
   .public({
     productService: ({ productRepo, discountService }) =>
       new ProductService(productRepo, discountService),
-  });
+  })
+  .public({
+    productController: asUseCases(productController),
+  })
+  .create();
 
 export default main;
+
 ```
 
 ### ./src/DiscountService/index.ts
@@ -146,7 +152,7 @@ export class ProductService implements IProductService {
 }
 ```
 
-### ./src/products-controller.ts
+### ./src/ProductController/index.ts
 
 ```typescript
 import type { Request, Response } from 'express';
@@ -174,19 +180,22 @@ export const getFeaturedProducts =
 
 ```typescript
 import express from 'express';
-import createContext from 'express-async-context';
 import main from './main';
-import { getFeaturedProducts } from './products-controller';
+import { scope } from '../../../src';
+import { JSONMoneyReplacer } from './domain/money';
 
 const app = express();
 
-const Context = createContext(
-  req => main.create({ token: req.headers.authorization ?? null }),
-);
+app.use((req, res, next) => {
+  scope.async.run(next);
+});
 
-app.use(Context.provider);
+app.use((req, res, next) => {
+  main.userService.setToken(req.headers.authorization ?? null);
+  next();
+});
 
-app.get('/featured-products', Context.consumer(getFeaturedProducts));
+app.get('/featured-products', main.productController.getFeaturedProducts);
 
 if (module === require.main) {
   app.listen(8080, () => {

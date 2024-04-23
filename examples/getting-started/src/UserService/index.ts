@@ -5,17 +5,15 @@ import { IUserService } from '../interfaces';
 export class UserService implements IUserService {
   #user: User | null = null;
 
-  #token: string | null = null;
+  constructor() {
+    console.log('Creating a User Service');
+  }
 
-  constructor(readonly token: string | null) {
-    this.#token = token;
+  async setToken(token: string | null) {
+    this.#user = token !== null ? parseToken(token) : null;
   }
 
   async getCurrentUser(): Promise<User | null> {
-    if (this.#user == null && this.#token != null) {
-      this.#user = parseToken(this.#token);
-    }
-
     return this.#user;
   }
 }

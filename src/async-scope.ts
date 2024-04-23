@@ -3,39 +3,38 @@ import { ASYNC } from './life-cycle';
 import { Resolver } from './types';
 
 export interface ContextProvider<T> {
-  run(context: T, callback: () => any): void;
+  run<R>(context: T, callback: () => R): R;
   get(): T;
 }
 
-let _contextProvider: ContextProvider<WeakMap<any, any>> =
+let contextProvider: ContextProvider<Map<any, any>> =
   typeof window === 'undefined'
     ? require('./als-context-provider').default
     : require('./sync-context-provider').default;
 
+export const run = <R>(cb: () => R) => contextProvider.run(new Map(), cb);
+
 export const initAsyncContextProvider = (
-  asyncContextProvider: ContextProvider<WeakMap<any, any>>,
+  asyncContextProvider: ContextProvider<Map<any, any>>,
 ) => {
-  _contextProvider = asyncContextProvider;
+  contextProvider = asyncContextProvider;
+  run(() => {});
 };
 
-const contextProvider = (): ContextProvider<WeakMap<any, any>> => _contextProvider;
+run.init = initAsyncContextProvider;
 
-export const run = (cb: () => void) => contextProvider().run(new WeakMap(), cb);
-
-if (typeof window !== 'undefined') {
-  run(() => {});
-}
+run(() => {});
 
 export const asyncScope = <PrM extends {}, PbM extends {}, ExtD extends {}, T>(
   resolver: Resolver<PrM, PbM, ExtD, T>,
   initial?: [any, T],
   force: boolean = true,
 ): Resolver<PrM, PbM, ExtD, T> => {
-  if (initial) contextProvider().get().set(resolver, initial[1]);
+  if (initial) contextProvider.get().set(resolver, initial[1]);
 
   return decorated(
     (internal: PrM & PbM, external: ExtD): T => {
-      const cache = contextProvider().get();
+      const cache = contextProvider.get();
 
       if (cache == null) {
         console.warn('Async Context is not defined. Use scope.async.run to handle request with async di scope');

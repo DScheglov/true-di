@@ -5,6 +5,8 @@ import {
   Initializers, Resolver, Resolvers, ScopeDecorator,
 } from './types';
 
+export type Clone<T> = { [key in keyof T]: T[key] };
+
 export type ExcludeKeys<T extends {}> = Exclude<string | symbol, keyof T>;
 
 export type NonIntercept<T extends {}> = {
@@ -23,7 +25,7 @@ export type ExpositionSelector<Items extends {}, T> = {
 export type ItemResolver<
   PrM extends {},
   PbM extends {},
-  Token extends ExcludeKeys<PbM & PrM>,
+  Token extends keyof NonIntercept<PbM & PrM>,
   Params extends {},
   T
 > = {
@@ -74,8 +76,8 @@ export type Creatable<
   EmptyResult extends boolean = [keyof PbM] extends [never] ? true : false
 > =
   EmptyResult extends true ? {} :
-  [keyof ExtD] extends [never] ? { create(): PbM; } :
-  { create(params: ExtD): PbM; };
+  [keyof ExtD] extends [never] ? { create(): Clone<PbM>; } :
+  { create(params: ExtD): Clone<PbM>; };
 
 export type ManageableCreate<
   PbM,
@@ -168,8 +170,8 @@ export type Extensible<PrM extends {}, PbM extends {}, ExtD extends {}> = {
 
 export type Initable<PrM extends {}, PbM extends {}, ExtD extends {}> = {
   init(
-    initializers: Initializers<PrM & PbM, ExtD
-  >): ManageableCreate<PbM, ExtD> & Exposible<PrM, PbM, ExtD>;
+    initializers: Initializers<PrM & PbM, ExtD>
+  ): ManageableCreate<PbM, ExtD> & Exposible<PrM, PbM, ExtD>;
 }
 
 export type ModuleBuilder<PrM extends {}, PbM extends {}, ExtD extends {}> =

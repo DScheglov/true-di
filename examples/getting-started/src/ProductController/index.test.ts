@@ -2,8 +2,8 @@ import {
   describe, expect, it, jest,
 } from '@jest/globals';
 import Express from 'express';
-import { IFeaturedProductProvider } from './interfaces/IProductService';
-import { getFeaturedProducts } from './products-controller';
+import { IFeaturedProductProvider } from '../interfaces/IProductService';
+import { getFeaturedProducts } from '.';
 
 function returnThis<T>(this: T) { return this; }
 
@@ -20,7 +20,7 @@ describe('productsController.getFeaturedProducts', () => {
     getFeaturedProducts: jest.fn<IFeaturedProductProvider['getFeaturedProducts']>(),
   };
 
-  it('sends json recieved from the productsService.getFeaturedProducs', async () => {
+  it('sends json received from the productsService.getFeaturedProducts', async () => {
     expect.assertions(4);
 
     const res = fakeResponse();
