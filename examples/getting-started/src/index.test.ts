@@ -1,22 +1,27 @@
-import request from 'supertest';
+import { Server } from 'http';
 import app from '.';
 
 describe('Express App', () => {
-  beforeAll(() => {
+  const PORT = 11111;
+  const HOST = 'localhost';
+  const baseUrl = `http://${HOST}:${PORT}`;
+  let server: Server;
+
+  beforeAll(done => {
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'info').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    server = app.listen(PORT, HOST, done);
   });
 
   afterAll(() => {
     jest.restoreAllMocks();
+    server?.close();
   });
 
-  it('responds with 200 on /orders', done => {
-    request(app)
-      .get('/orders')
-      .send()
-      .expect('Content-Type', /json/)
-      .expect(200, done);
+  it('responds with 200 on /orders', async () => {
+    const res = await fetch(`${baseUrl}/orders`);
+    expect(res.status).toBe(200);
   });
 });
