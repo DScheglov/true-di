@@ -17,7 +17,7 @@ describe('container', () => {
   });
 
   beforeEach(() => {
-    container = createContainer({ headers: {} } as IncomingMessage)
+    container = createContainer({ headers: {} } as IncomingMessage);
   });
 
   afterEach(() => {
@@ -40,10 +40,10 @@ describe('container', () => {
     const typecheck: AssertTypeEqual<typeof container.dataSourceService, IDataSourceService> = true;
   });
 
-  it('allows to get ecommerceService', () => {
-    expect(container.ecommerceService).toBeDefined();
+  it('allows to get eCommerceService', () => {
+    expect(container.eCommerceService).toBeDefined();
 
-    const typecheck: AssertTypeEqual<typeof container.ecommerceService, IECommerceService> = true;
+    const typecheck: AssertTypeEqual<typeof container.eCommerceService, IECommerceService> = true;
   });
 
   // or just single test
@@ -52,14 +52,14 @@ describe('container', () => {
 
     expect(items.logger).toBeDefined();
     expect(items.dataSourceService).toBeDefined();
-    expect(items.ecommerceService).toBeDefined();
+    expect(items.eCommerceService).toBeDefined();
 
     const typecheck: AssertTypeEqual<
       typeof items, {
         logLevel: LogLevel,
         logger: ILogger,
         dataSourceService: IDataSourceService,
-        ecommerceService: IECommerceService,
+        eCommerceService: IECommerceService,
       }> = true;
   });
 
@@ -69,14 +69,14 @@ describe('container', () => {
 
     expect(items.logger).toBeDefined();
     expect(items.dataSourceService).toBeDefined();
-    expect(items.ecommerceService).toBeDefined();
+    expect(items.eCommerceService).toBeDefined();
 
     const typecheck: AssertTypeEqual<
       typeof items, {
         logLevel: LogLevel,
         logger: ILogger,
         dataSourceService: IDataSourceService,
-        ecommerceService: IECommerceService,
+        eCommerceService: IECommerceService,
       }> = true;
   });
 });

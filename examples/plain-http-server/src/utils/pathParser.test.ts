@@ -5,7 +5,7 @@ describe('pathParser', () => {
     expect(pathParser('/')).toBeInstanceOf(Function);
   });
 
-  it('throws an exeption if pathPattern is not valid', () => {
+  it('throws an exception if pathPattern is not valid', () => {
     expect(
       () => pathParser('?'),
     ).toThrow(TypeError);

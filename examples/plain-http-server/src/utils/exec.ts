@@ -7,17 +7,17 @@ const match = <P, T, C>(pathPattern: Path, fn: (context:C, params: P) => T) => {
   return (context: C, { url }: IncomingMessage) => {
     const params = matcher<P>(url);
     return params != null ? fn(context, params) : null;
-  }
-}
+  };
+};
 
 const execOrNext = <A extends unknown[], R1, R2>(
   h1: (...args: A) => R1,
-  h2: (...args: A) => R2
+  h2: (...args: A) => R2,
 ) => (...args: A) => h1(...args) ?? h2(...args);
 
-export const firstOf = <C>(...handlers: Array<(context: C, req: IncomingMessage) => any>) => 
-  handlers.length > 0
+export const firstOf = <C>(...handlers: Array<(context: C, req: IncomingMessage) => any>) =>
+  (handlers.length > 0
     ? handlers.reduce(execOrNext)
-    : () => null;
+    : () => null);
 
 export default match;

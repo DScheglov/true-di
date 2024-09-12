@@ -1,18 +1,11 @@
 import {
-  pathToRegexp, Path, Key, TokensToRegexpOptions, ParseOptions,
+  pathToRegexp, Path, PathToRegexpOptions, ParseOptions,
 } from 'path-to-regexp';
 
-export const pathParser = (pathPattern: Path, options?: TokensToRegexpOptions & ParseOptions) => {
-  const keys: Key[] = [];
-  const pathMatcher = pathToRegexp(pathPattern, keys, options); // throws TypeError
+export const pathParser = (pathPattern: Path, options?: PathToRegexpOptions & ParseOptions) => {
+  const { keys, regexp: pathMatcher } = pathToRegexp(pathPattern, options); // throws TypeError
 
-  keys.unshift({
-    name: 'pathname',
-    prefix: '',
-    suffix: '',
-    pattern: '',
-    modifier: '',
-  });
+  keys.unshift({ name: 'pathname', type: 'param' });
 
   return <T extends {}>(path: string): T | null => {
     const parsingResult = pathMatcher.exec(path);

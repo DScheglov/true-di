@@ -3,6 +3,7 @@
     "./src/*",
   ],
   "compilerOptions": {
+    "noEmit": true,
     "noImplicitAny": false,
     "types": ["node", "jest"],
     "lib": [

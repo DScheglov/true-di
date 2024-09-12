@@ -2,17 +2,17 @@ import { IECommerceService } from './interfaces';
 import { expectFound } from './utils/NotFoundError';
 
 type Context = {
-  ecommerceService: IECommerceService
+  eCommerceService: IECommerceService
 }
 
 type GetOrderByIdParams = {
   id: string
 }
 
-export const getOrders = ({ ecommerceService }: Context) =>
-  ecommerceService.getOrders();
+export const getOrders = ({ eCommerceService }: Context) =>
+  eCommerceService.getOrders();
 
-export const getOrderById = ({ ecommerceService }: Context, { id }: GetOrderByIdParams) =>
-  ecommerceService
+export const getOrderById = ({ eCommerceService }: Context, { id }: GetOrderByIdParams) =>
+  eCommerceService
     .getOrderById(id)
     .then(expectFound(`Order ${id}`));
