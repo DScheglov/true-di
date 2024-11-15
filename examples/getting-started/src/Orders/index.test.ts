@@ -7,9 +7,9 @@ describe('Orders', () => {
       const orderItem: OrderItem = createOrderItem();
 
       expect(orderItem).toEqual({
-        id: null,
-        orderId: null,
-        sku: null,
+        id: '',
+        orderId: '',
+        sku: '',
         unitPrice: 0,
         quantity: 0,
       });
@@ -33,7 +33,7 @@ describe('Orders', () => {
       const order: Order = createOrder();
 
       expect(order).toEqual({
-        id: null,
+        id: '',
         items: [],
         total: 0,
       });

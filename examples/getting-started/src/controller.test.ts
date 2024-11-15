@@ -22,7 +22,7 @@ const fakeResponse = (): Express.Response => ({
 const fakeRequest = <P extends {} >(params: P = {} as P): Express.Request<P> => ({ params }) as any;
 
 describe('controller.getOrders', () => {
-  it('sends json recieved from the ecommerceService.getOrders', async () => {
+  it('sends json received from the ecommerceService.getOrders', async () => {
     expect.assertions(4);
 
     const ecommerceService = fakeGetOrdersService([]);
@@ -39,7 +39,7 @@ describe('controller.getOrders', () => {
 });
 
 describe('controller.getOrderById', () => {
-  it('sends json recieved from the ecommerceService.getOrderById', async () => {
+  it('sends json received from the ecommerceService.getOrderById', async () => {
     expect.assertions(5);
     const ecommerceService = fakeGetOrderByIdService([{} as Order]);
     const res = fakeResponse();

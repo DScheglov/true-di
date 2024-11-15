@@ -9,7 +9,7 @@ export const getOrders = (req: Request, res: Response, next: Next) =>
       .getOrders()
       .then(sendJson(res), next);
 
-export const getOrderById = ({ params }: Request<{ id: string }>, res: Response, next: Next) =>
+export const getOrderById = ({ params }: Request, res: Response, next: Next) =>
   ({ ecommerceService }: { ecommerceService: IGetOrderById }) =>
     ecommerceService
       .getOrderById(params.id)

@@ -1,7 +1,7 @@
 import Express from 'express';
 import { sendJson } from './sendJson';
 
-function returnThis() { return this; }
+function returnThis<T>(this: T): T { return this; }
 
 const fakeResponse: Express.Response = {
   type: jest.fn(returnThis),

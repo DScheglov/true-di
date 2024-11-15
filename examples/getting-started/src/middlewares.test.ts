@@ -4,7 +4,7 @@ import { IErrorLogger, IWarnLogger } from './interfaces';
 import { handleErrors } from './middlewares';
 import { NotFoundError } from './utils/NotFoundError';
 
-function returnThis() { return this; }
+function returnThis<T>(this: T): T { return this; }
 
 const fakeResponse = (): Express.Response => ({
   status: jest.fn(returnThis),

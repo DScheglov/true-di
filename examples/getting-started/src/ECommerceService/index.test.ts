@@ -82,7 +82,7 @@ describe('ECommerceService', () => {
     const fakeDataSource = {
       getOrderItems: jest.fn(
         (predicate?: (orderItem: OrderItem) => boolean) =>
-          Promise.resolve(fakeOrderItems.filter(predicate)),
+          Promise.resolve(fakeOrderItems.filter(predicate != null ? predicate : () => true)),
       ),
     };
     const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
