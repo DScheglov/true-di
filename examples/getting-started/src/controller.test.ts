@@ -12,7 +12,7 @@ const fakeGetOrderByIdService = (orders: Order[]): IGetOrderById => ({
   getOrderById: jest.fn(async (): Promise<Order|null> => orders[0]),
 });
 
-function returnThis() { return this; }
+function returnThis<T>(this: T):T { return this; }
 
 const fakeResponse = (): Express.Response => ({
   type: jest.fn(returnThis),
@@ -60,7 +60,7 @@ describe('controller.getOrderById', () => {
 
   it('calls next function with NotFoundError if order is not found', async () => {
     expect.assertions(4);
-    const ecommerceService = fakeGetOrderByIdService([null]);
+    const ecommerceService = fakeGetOrderByIdService([null as any]);
     const res = fakeResponse();
     const next = jest.fn();
 
