@@ -1,20 +1,20 @@
 import { IDataSourceService, IInfoLogger, OrderItem } from '../interfaces';
 import fakeOrderItems from './__fake__/order-items';
 
-class DataSourceService implements IDataSourceService {
-  private readonly _data: OrderItem[] = fakeOrderItems;
+class FakeDataSourceService implements IDataSourceService {
+  readonly #data: OrderItem[] = fakeOrderItems;
 
   constructor(_logger: IInfoLogger) {
-    _logger.info('DataSourseService has been created');
+    _logger.info('DataSourceService has been created');
   }
 
   getOrderItems(predicate?: (orderItem: OrderItem) => boolean): Promise<OrderItem[]> {
     return Promise.resolve(
       typeof predicate === 'function'
-        ? this._data.filter(predicate)
-        : this._data,
+        ? this.#data.filter(predicate)
+        : this.#data,
     );
   }
 }
 
-export default DataSourceService;
+export default FakeDataSourceService;

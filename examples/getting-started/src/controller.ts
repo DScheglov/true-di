@@ -4,14 +4,14 @@ import { sendJson } from './utils/sendJson';
 import { expectFound } from './utils/NotFoundError';
 
 export const getOrders = (req: Request, res: Response, next: Next) =>
-  ({ ecommerceService }: { ecommerceService: IGetOrders }) =>
-    ecommerceService
+  ({ eCommerceService }: { eCommerceService: IGetOrders }) =>
+    eCommerceService
       .getOrders()
       .then(sendJson(res), next);
 
 export const getOrderById = ({ params }: Request, res: Response, next: Next) =>
-  ({ ecommerceService }: { ecommerceService: IGetOrderById }) =>
-    ecommerceService
+  ({ eCommerceService }: { eCommerceService: IGetOrderById }) =>
+    eCommerceService
       .getOrderById(params.id)
       .then(expectFound(`Order(${params.id})`))
       .then(sendJson(res), next);

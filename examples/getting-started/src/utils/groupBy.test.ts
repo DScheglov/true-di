@@ -5,7 +5,8 @@ describe('groupBy', () => {
     expect(
       groupBy(
         (x: number) => x,
-        (list: number[] = [], item: number) => {
+        (list: number[] | undefined, item: number) => {
+          list ??= [];
           list.push(item);
           return list;
         },
@@ -17,7 +18,8 @@ describe('groupBy', () => {
     it('returns empty list for empty list', () => {
       const groupByValue = groupBy(
         (x: number) => x,
-        (list: number[] = [], item: number) => {
+        (list: number[] | undefined, item: number) => {
+          list ??= [];
           list.push(item);
           return list;
         },
@@ -39,7 +41,8 @@ describe('groupBy', () => {
     it('groups same items', () => {
       const groupByValue = groupBy(
         (x: number) => x,
-        (list: number[] = [], item) => {
+        (list: number[] | undefined, item) => {
+          list ??= [];
           list.push(item);
           return list;
         },

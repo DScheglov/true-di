@@ -22,16 +22,16 @@ const fakeResponse = (): Express.Response => ({
 const fakeRequest = <P extends {} >(params: P = {} as P): Express.Request<P> => ({ params }) as any;
 
 describe('controller.getOrders', () => {
-  it('sends json received from the ecommerceService.getOrders', async () => {
+  it('sends json received from the eCommerceService.getOrders', async () => {
     expect.assertions(4);
 
-    const ecommerceService = fakeGetOrdersService([]);
+    const eCommerceService = fakeGetOrdersService([]);
     const res = fakeResponse();
     const next = jest.fn();
 
-    await getOrders(fakeRequest(), res, next)({ ecommerceService });
+    await getOrders(fakeRequest(), res, next)({ eCommerceService });
 
-    expect(ecommerceService.getOrders).toHaveBeenCalledTimes(1);
+    expect(eCommerceService.getOrders).toHaveBeenCalledTimes(1);
     expect(res.type).toHaveBeenCalledWith('application/json');
     expect(res.send).toHaveBeenCalledWith('[]');
     expect(next).not.toHaveBeenCalled();
@@ -39,9 +39,9 @@ describe('controller.getOrders', () => {
 });
 
 describe('controller.getOrderById', () => {
-  it('sends json received from the ecommerceService.getOrderById', async () => {
+  it('sends json received from the eCommerceService.getOrderById', async () => {
     expect.assertions(5);
-    const ecommerceService = fakeGetOrderByIdService([{} as Order]);
+    const eCommerceService = fakeGetOrderByIdService([{} as Order]);
     const res = fakeResponse();
     const next = jest.fn();
 
@@ -49,10 +49,10 @@ describe('controller.getOrderById', () => {
       fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' }),
       res,
       next,
-    )({ ecommerceService });
+    )({ eCommerceService });
 
-    expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
-    expect(ecommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd-13a05525ab11');
+    expect(eCommerceService.getOrderById).toHaveBeenCalledTimes(1);
+    expect(eCommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd-13a05525ab11');
     expect(res.type).toHaveBeenCalledWith('application/json');
     expect(res.send).toHaveBeenCalledWith('{}');
     expect(next).not.toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('controller.getOrderById', () => {
 
   it('calls next function with NotFoundError if order is not found', async () => {
     expect.assertions(4);
-    const ecommerceService = fakeGetOrderByIdService([null as any]);
+    const eCommerceService = fakeGetOrderByIdService([null as any]);
     const res = fakeResponse();
     const next = jest.fn();
 
@@ -68,9 +68,9 @@ describe('controller.getOrderById', () => {
       fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd-13a05525ab11' }),
       res,
       next,
-    )({ ecommerceService });
+    )({ eCommerceService });
 
-    expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
+    expect(eCommerceService.getOrderById).toHaveBeenCalledTimes(1);
     expect(res.send).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(new NotFoundError('Order(0c6dc1ff-b678-475a-a8cd-13a05525ab11)'));
@@ -78,7 +78,7 @@ describe('controller.getOrderById', () => {
 
   it('calls next function with AssertionError if id is not a valid UUID', async () => {
     expect.assertions(5);
-    const ecommerceService = {
+    const eCommerceService = {
       getOrderById: jest.fn(async (id: string): Promise<Order|null> => {
         throw new AssertionError({ message: `${id} is not a UUID` });
       }),
@@ -90,10 +90,10 @@ describe('controller.getOrderById', () => {
       fakeRequest({ id: '0c6dc1ff-b678-475a-a8cd' }),
       res,
       next,
-    )({ ecommerceService });
+    )({ eCommerceService });
 
-    expect(ecommerceService.getOrderById).toHaveBeenCalledTimes(1);
-    expect(ecommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd');
+    expect(eCommerceService.getOrderById).toHaveBeenCalledTimes(1);
+    expect(eCommerceService.getOrderById).toHaveBeenCalledWith('0c6dc1ff-b678-475a-a8cd');
     expect(res.send).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(new AssertionError({ message: '0c6dc1ff-b678-475a-a8cd is not a UUID' }));

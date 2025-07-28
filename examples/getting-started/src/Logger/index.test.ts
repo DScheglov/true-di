@@ -1,4 +1,4 @@
-import Logger, { LogLevel } from '.';
+import ConsoleLogger, { LogLevel } from '.';
 
 describe('Logger', () => {
   beforeEach(() => {
@@ -14,13 +14,13 @@ describe('Logger', () => {
   });
 
   it('creates a logger object with new operator', () => {
-    const logger = new Logger();
+    const logger = new ConsoleLogger();
 
-    expect(logger).toBeInstanceOf(Logger);
+    expect(logger).toBeInstanceOf(ConsoleLogger);
   });
 
   it('prints to console info message with .info method', () => {
-    const logger = new Logger();
+    const logger = new ConsoleLogger();
 
     logger.info('Some Message');
 
@@ -33,7 +33,7 @@ describe('Logger', () => {
   });
 
   it('doesn\'t print to console info message with .info method if logLevel is less then INFO', () => {
-    const logger = new Logger(LogLevel.INFO - 1);
+    const logger = new ConsoleLogger(LogLevel.INFO - 1);
 
     logger.info('Some Message');
 
@@ -41,7 +41,7 @@ describe('Logger', () => {
   });
 
   it('prints to console warning message with .warn method', () => {
-    const logger = new Logger();
+    const logger = new ConsoleLogger();
 
     logger.warn('Some Warning');
 
@@ -54,7 +54,7 @@ describe('Logger', () => {
   });
 
   it('doesn\'t print to console warning message with .warn method if logLevel is less then WARINING', () => {
-    const logger = new Logger(LogLevel.WARNING - 1);
+    const logger = new ConsoleLogger(LogLevel.WARNING - 1);
 
     logger.warn('Some Warning');
 
@@ -62,7 +62,7 @@ describe('Logger', () => {
   });
 
   it('prints to console error message with .error method', () => {
-    const logger = new Logger();
+    const logger = new ConsoleLogger();
 
     logger.error(new Error('Some Error Message'));
 
@@ -75,7 +75,7 @@ describe('Logger', () => {
   });
 
   it('doesn\'t print to console error message with .error method if logLevel is less then ERROR', () => {
-    const logger = new Logger(LogLevel.SILENT);
+    const logger = new ConsoleLogger(LogLevel.SILENT);
 
     logger.error(new Error('Some Error Message'));
 

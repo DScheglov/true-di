@@ -1,3 +1,4 @@
+import { jest, expect, describe, it } from '@jest/globals';
 import { AssertionError } from 'assert';
 import ECommerceService from '.';
 import {
@@ -43,41 +44,40 @@ const fakeOrderItems = [
   },
 ];
 
+const createFakeInfoLogger = () => ({
+  info: jest.fn<IInfoLogger["info"]>(),
+});
+
+const createFakeDataSourceService = () => ({
+  getOrderItems: jest.fn<IDataSourceService["getOrderItems"]>().mockResolvedValue(fakeOrderItems),
+});
+
+
 describe('ECommerceService', () => {
-  it('allows to instantiate ecommerceService', () => {
-    const fakeLogger: IInfoLogger = {
-      info: jest.fn(),
-    };
+  it('allows to instantiate eCommerceService', () => {
+    const fakeLogger: IInfoLogger = createFakeInfoLogger();
 
-    const fakeDataSource: IDataSourceService = {
-      getOrderItems: jest.fn().mockResolvedValue(fakeOrderItems),
-    };
-    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+    const fakeDataSource = createFakeDataSourceService();
+    const eCommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
 
-    expect(ecommerceService).toBeInstanceOf(ECommerceService);
+    expect(eCommerceService).toBeInstanceOf(ECommerceService);
   });
 
   it('returns orders with method .getOrders', async () => {
     expect.assertions(1);
 
-    const fakeLogger: IInfoLogger = {
-      info: jest.fn(),
-    };
+    const fakeLogger: IInfoLogger = createFakeInfoLogger();
 
-    const fakeDataSource: IDataSourceService = {
-      getOrderItems: jest.fn().mockResolvedValue(fakeOrderItems),
-    };
-    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+    const fakeDataSource = createFakeDataSourceService();
+    const eCommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
 
-    expect(await ecommerceService.getOrders()).toEqual(ordersFromItems(fakeOrderItems));
+    expect(await eCommerceService.getOrders()).toEqual(ordersFromItems(fakeOrderItems));
   });
 
   it('returns order with method .getOrderById', async () => {
     expect.assertions(1);
 
-    const fakeLogger: IInfoLogger = {
-      info: jest.fn(),
-    };
+    const fakeLogger: IInfoLogger = createFakeInfoLogger();
 
     const fakeDataSource = {
       getOrderItems: jest.fn(
@@ -85,44 +85,38 @@ describe('ECommerceService', () => {
           Promise.resolve(fakeOrderItems.filter(predicate != null ? predicate : () => true)),
       ),
     };
-    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+    const eCommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
 
     expect(
-      await ecommerceService.getOrderById(fakeOrderItems[0].orderId),
+      await eCommerceService.getOrderById(fakeOrderItems[0].orderId),
     ).toEqual(ordersFromItems(fakeOrderItems)[0]);
   });
 
   it('returns null with method .getOrderById if no order is found', async () => {
     expect.assertions(1);
 
-    const fakeLogger: IInfoLogger = {
-      info: jest.fn(),
-    };
+    const fakeLogger: IInfoLogger = createFakeInfoLogger();
 
-    const fakeDataSource = {
-      getOrderItems: jest.fn().mockResolvedValue([]),
-    };
+    const fakeDataSource = createFakeDataSourceService();
+    fakeDataSource.getOrderItems.mockResolvedValueOnce([]);
 
-    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+    const eCommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
     expect(
-      await ecommerceService.getOrderById('9acec35f-2402-40a7-92cc-664a4ade4778'),
+      await eCommerceService.getOrderById('9acec35f-2402-40a7-92cc-664a4ade4778'),
     ).toEqual(null);
   });
 
   it('throws AssertionError with method .getOrderById if id is not a UUID', async () => {
     expect.assertions(1);
 
-    const fakeLogger: IInfoLogger = {
-      info: jest.fn(),
-    };
+    const fakeLogger: IInfoLogger = createFakeInfoLogger();
 
-    const fakeDataSource = {
-      getOrderItems: jest.fn().mockResolvedValue([]),
-    };
+    const fakeDataSource = createFakeDataSourceService();
+    fakeDataSource.getOrderItems.mockResolvedValueOnce([]);
 
-    const ecommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
+    const eCommerceService: IECommerceService = new ECommerceService(fakeLogger, fakeDataSource);
 
-    const error = await ecommerceService.getOrderById('9acec35f-2402-40a7-92cc').catch(err => err);
+    const error = await eCommerceService.getOrderById('9acec35f-2402-40a7-92cc').catch(err => err);
 
     expect(error).toBeInstanceOf(AssertionError);
   });

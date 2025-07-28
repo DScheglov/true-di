@@ -40,10 +40,10 @@
     ],
     "operator-linebreak": 0,
     "no-underscore-dangle": 0,
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": "error",
     "import/no-extraneous-dependencies": ["error", { "devDependencies": ["**/*.test.*"] }],
-    "@typescript-eslint/no-unused-vars": [
-      "error"
-    ],
+    "@typescript-eslint/no-unused-vars": "error",
     "jest/no-disabled-tests": "warn",
     "jest/no-focused-tests": "error",
     "jest/no-identical-title": "error",
@@ -57,5 +57,15 @@
   "ignorePatterns": [
     "lib/**/*",
     "esm/**/*"
+  ],
+  "overrides": [
+    {
+      "files": ["*.test.ts",],
+      "rules": {
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+        "no-unused-expressions": "off",
+        "@typescript-eslint/no-unused-expressions": "error"
+      }
+    }
   ]
 }

@@ -5,20 +5,24 @@ import {
 import { ordersFromItems } from '../Orders';
 import { isUUID } from '../utils/isUUID';
 
-class ECommerceSerive implements IECommerceService {
+class ECommerceService implements IECommerceService {
+  readonly #logger: IInfoLogger;
+
+  readonly #dataSourceService: IDataSourceService;
+
   constructor(
-    private readonly _logger: IInfoLogger,
-    private readonly _dataSourceService: IDataSourceService,
+    logger: IInfoLogger,
+    dataSourceService: IDataSourceService,
   ) {
-    _logger.info('ECommerceService has been created');
+    this.#logger = logger;
+    this.#dataSourceService = dataSourceService;
+    logger.info('ECommerceService has been created');
   }
 
   async getOrders(): Promise<Order[]> {
-    const { _logger, _dataSourceService } = this;
+    this.#logger.info('getOrders has been called');
 
-    _logger.info('getOrders has been called');
-
-    const orderItems = await _dataSourceService.getOrderItems();
+    const orderItems = await this.#dataSourceService.getOrderItems();
 
     return ordersFromItems(orderItems);
   }
@@ -26,11 +30,9 @@ class ECommerceSerive implements IECommerceService {
   async getOrderById(id: string): Promise<Order | null> {
     assert(isUUID(id), `${id} is not a valid UUID`);
 
-    const { _logger, _dataSourceService } = this;
+    this.#logger.info('getOrderById has been called');
 
-    _logger.info('getOrderById has been called');
-
-    const orderItems = await _dataSourceService.getOrderItems(
+    const orderItems = await this.#dataSourceService.getOrderItems(
       ({ orderId }) => orderId === id,
     );
 
@@ -40,4 +42,4 @@ class ECommerceSerive implements IECommerceService {
   }
 }
 
-export default ECommerceSerive;
+export default ECommerceService;
